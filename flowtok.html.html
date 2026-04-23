@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FlowTok</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --pink: #ee2b6c; --pink2: #ff6b35; --dark: #0d0d1a; --card: #1a1a2e;
+  --card2: #12121f; --border: rgba(255,255,255,.07); --muted: rgba(255,255,255,.4);
+  --text: #fff; --radius: 18px; --r: 12px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; background: #000; font-family: 'Inter', sans-serif; }
+body { display: flex; justify-content: center; align-items: flex-start; padding: 20px 0 40px; min-height: 100vh; }
+
+/* PHONE */
+.phone { width: 360px; background: var(--dark); border-radius: 36px; border: 1.5px solid rgba(255,255,255,.1); overflow: hidden; box-shadow: 0 40px 100px rgba(0,0,0,.8); position: relative; min-height: 700px; }
+
+/* TOPBAR */
+.topbar { background: var(--dark); padding: 14px 16px 10px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+.topbar-logo { font-size: 16px; font-weight: 900; background: linear-gradient(135deg, var(--pink), var(--pink2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.topbar-lang { display: flex; gap: 6px; }
+.tl-btn { background: rgba(255,255,255,.06); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 10px; font-weight: 700; padding: 4px 8px; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .2s; }
+.tl-btn.active { background: rgba(238,43,108,.15); border-color: var(--pink); color: var(--pink); }
+
+/* SCREENS */
+.screen { display: none; animation: fu .25s ease; }
+.screen.active { display: block; }
+@keyframes fu { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── LANG SCREEN ── */
+.lang-screen { min-height: 700px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px 24px; text-align: center; background: linear-gradient(160deg, #1a1a2e, #0d0d1a); }
+.ls-logo { font-size: 52px; font-weight: 900; background: linear-gradient(135deg, var(--pink), var(--pink2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.ls-tag { font-size: 12px; color: var(--muted); margin-bottom: 50px; line-height: 1.6; }
+.ls-title { font-size: 13px; color: rgba(255,255,255,.6); margin-bottom: 16px; font-weight: 600; }
+.ls-grid { display: flex; gap: 10px; margin-bottom: 50px; width: 100%; }
+.ls-item { flex: 1; padding: 16px 8px; border-radius: 16px; border: 1.5px solid var(--border); background: rgba(255,255,255,.04); cursor: pointer; transition: all .2s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.ls-item:hover, .ls-item.sel { border-color: var(--pink); background: rgba(238,43,108,.12); }
+.ls-flag { font-size: 26px; }
+.ls-name { font-size: 11px; font-weight: 700; color: var(--text); }
+.btn-grad { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--pink), var(--pink2)); border: none; border-radius: 16px; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; box-shadow: 0 8px 24px rgba(238,43,108,.4); transition: all .2s; }
+.btn-grad:active { transform: scale(.97); }
+
+/* ── AUTH ── */
+.auth-screen { min-height: 700px; padding: 30px 24px; background: var(--dark); }
+.auth-logo { font-size: 28px; font-weight: 900; background: linear-gradient(135deg, var(--pink), var(--pink2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.auth-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.auth-sub { font-size: 13px; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
+.field input { width: 100%; padding: 13px 15px; background: rgba(255,255,255,.06); border: 1.5px solid var(--border); border-radius: var(--r); color: var(--text); font-size: 14px; font-family: 'Inter', sans-serif; outline: none; transition: all .2s; }
+.field input:focus { border-color: var(--pink); background: rgba(238,43,108,.06); }
+.auth-switch { text-align: center; margin-top: 20px; font-size: 13px; color: var(--muted); }
+.auth-switch span { color: var(--pink); font-weight: 700; cursor: pointer; }
+.divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+.divider-line { flex: 1; height: 1px; background: var(--border); }
+.divider-txt { font-size: 11px; color: var(--muted); font-weight: 600; }
+.forgot { text-align: right; margin-top: -8px; margin-bottom: 20px; }
+.forgot span { font-size: 12px; color: var(--pink); cursor: pointer; font-weight: 600; }
+
+/* ── ONBOARD PROFILE ── */
+.onboard-screen { min-height: 700px; padding: 24px; background: var(--dark); }
+.ob-step { font-size: 11px; font-weight: 700; color: var(--pink); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+.ob-title { font-size: 22px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.ob-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; line-height: 1.6; }
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { padding: 8px 14px; border-radius: 20px; border: 1.5px solid var(--border); background: rgba(255,255,255,.04); color: rgba(255,255,255,.7); font-size: 12px; font-weight: 600; cursor: pointer; transition: all .2s; font-family: 'Inter', sans-serif; }
+.chip.sel { border-color: var(--pink); background: rgba(238,43,108,.15); color: var(--pink); }
+
+/* ── HOME ── */
+.home-screen { background: var(--card2); padding-bottom: 70px; }
+.home-header { background: linear-gradient(135deg, #c2185b, #ee2b6c, #ff6b35); padding: 20px 18px 22px; }
+.h-hello { font-size: 12px; color: rgba(255,255,255,.7); margin-bottom: 2px; }
+.h-name { font-size: 22px; font-weight: 800; color: #fff; }
+.h-sub { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 3px; }
+.stat-row { display: flex; gap: 8px; margin-top: 16px; }
+.stat { flex: 1; background: rgba(255,255,255,.15); border-radius: 12px; padding: 10px; text-align: center; }
+.stat-n { font-size: 20px; font-weight: 800; color: #fff; }
+.stat-l { font-size: 9px; color: rgba(255,255,255,.65); margin-top: 2px; }
+.sec-title { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.8); margin: 18px 18px 12px; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 18px; }
+.qcard { border-radius: 16px; padding: 16px 14px; cursor: pointer; border: 1px solid var(--border); transition: transform .15s; }
+.qcard:active { transform: scale(.97); }
+.qc1 { background: linear-gradient(135deg, #1e1e3a, #2d1b4e); }
+.qc2 { background: linear-gradient(135deg, #1a2e1e, #1b3a2d); }
+.qc3 { background: linear-gradient(135deg, #2e1a1e, #3a1b2d); }
+.qc4 { background: linear-gradient(135deg, #2e2a1a, #3a341b); }
+.qc5 { background: linear-gradient(135deg, #1a2a2e, #1b303a); }
+.qc-icon { font-size: 26px; margin-bottom: 8px; }
+.qc-t { font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 3px; }
+.qc-s { font-size: 10px; color: rgba(255,255,255,.4); line-height: 1.4; }
+.trend-row { margin: 0 18px; }
+.tcard { background: rgba(255,255,255,.04); border-radius: 12px; padding: 11px 14px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.t-rank { font-size: 15px; font-weight: 900; color: var(--pink); width: 22px; }
+.t-info { flex: 1; }
+.t-name { font-size: 12px; font-weight: 600; color: #fff; }
+.t-views { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.t-badge { font-size: 9px; background: rgba(238,43,108,.2); color: var(--pink); padding: 3px 8px; border-radius: 20px; font-weight: 700; }
+
+/* ── ANALYSE PRODUIT ── */
+.analyse-screen { background: var(--card2); padding-bottom: 70px; }
+.screen-hdr { background: var(--card); padding: 16px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.back-btn { font-size: 20px; cursor: pointer; color: var(--text); background: none; border: none; }
+.screen-hdr h3 { font-size: 16px; font-weight: 700; color: var(--text); }
+.analyse-body { padding: 18px; }
+.upload-zone { border: 2px dashed rgba(238,43,108,.4); border-radius: 16px; padding: 30px 20px; text-align: center; margin-bottom: 16px; cursor: pointer; background: rgba(238,43,108,.04); transition: all .2s; }
+.upload-zone:hover { background: rgba(238,43,108,.08); border-color: var(--pink); }
+.uz-icon { font-size: 36px; margin-bottom: 10px; }
+.uz-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.uz-sub { font-size: 12px; color: var(--muted); }
+.preview-imgs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.prev-img { width: 70px; height: 70px; border-radius: 12px; background: linear-gradient(135deg, #2d1b4e, #1e1e3a); display: flex; align-items: center; justify-content: center; font-size: 24px; border: 1px solid var(--border); }
+
+/* SCORE */
+.score-card { background: var(--card); border-radius: 16px; padding: 18px; margin-bottom: 14px; border: 1px solid var(--border); }
+.score-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.score-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.score-badge { font-size: 22px; font-weight: 900; color: #4caf50; }
+.score-bar-wrap { margin-bottom: 8px; }
+.score-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
+.score-bar { height: 6px; background: rgba(255,255,255,.08); border-radius: 3px; overflow: hidden; }
+.score-fill { height: 100%; border-radius: 3px; background: linear-gradient(to right, var(--pink), var(--pink2)); }
+.score-verdict { background: rgba(76,175,80,.1); border: 1px solid rgba(76,175,80,.3); border-radius: 12px; padding: 12px; margin-top: 12px; }
+.sv-title { font-size: 11px; font-weight: 700; color: #4caf50; margin-bottom: 4px; }
+.sv-text { font-size: 12px; color: rgba(255,255,255,.7); line-height: 1.6; }
+
+/* ANGLES */
+.angle-card { background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px; border: 1.5px solid var(--border); cursor: pointer; transition: all .2s; }
+.angle-card:hover, .angle-card.sel { border-color: var(--pink); background: rgba(238,43,108,.08); }
+.ac-top { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.ac-icon { font-size: 20px; }
+.ac-type { font-size: 12px; font-weight: 700; color: var(--pink); }
+.ac-hook { font-size: 13px; color: rgba(255,255,255,.8); line-height: 1.6; font-style: italic; }
+
+/* ── SCRIPT ── */
+.script-screen { background: var(--card2); padding-bottom: 70px; }
+.script-body { padding: 16px 18px; }
+.s-field { margin-bottom: 12px; }
+.s-field label { display: block; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
+.s-field input, .s-field select { width: 100%; padding: 12px 14px; background: rgba(255,255,255,.06); border: 1.5px solid var(--border); border-radius: var(--r); color: var(--text); font-size: 13px; font-family: 'Inter', sans-serif; outline: none; transition: all .2s; -webkit-appearance: none; }
+.s-field input:focus { border-color: var(--pink); }
+.tone-row { display: flex; gap: 8px; margin-bottom: 16px; }
+.tone-btn { flex: 1; padding: 9px 4px; border-radius: 10px; border: 1.5px solid var(--border); background: rgba(255,255,255,.04); color: var(--muted); font-size: 10px; font-weight: 700; cursor: pointer; text-align: center; font-family: 'Inter', sans-serif; transition: all .2s; }
+.tone-btn.sel { border-color: var(--pink); background: rgba(238,43,108,.15); color: var(--pink); }
+.result-block { background: rgba(255,255,255,.04); border-radius: 12px; padding: 13px; margin-bottom: 8px; }
+.rb-lbl { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px; }
+.rb-txt { font-size: 13px; color: rgba(255,255,255,.8); line-height: 1.7; white-space: pre-line; }
+.rb-hook { border-left: 3px solid var(--pink); }
+.rb-body { border-left: 3px solid #9c27b0; }
+.rb-cta  { border-left: 3px solid #4caf50; }
+.rb-cap  { border-left: 3px solid #ff9800; }
+.rb-hash { border-left: 3px solid #2196f3; }
+.btn-row { display: flex; gap: 8px; margin-top: 10px; }
+.btn-copy { flex: 2; padding: 13px; background: linear-gradient(135deg, var(--pink), var(--pink2)); border: none; border-radius: 12px; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; }
+.btn-save { flex: 1; padding: 13px; background: rgba(255,255,255,.08); border: none; border-radius: 12px; color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; }
+
+/* ── IDÉES ── */
+.ideas-screen { background: var(--card2); padding-bottom: 70px; }
+.ideas-body { padding: 16px 18px; }
+.idea-item { background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start; }
+.idea-num { width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, var(--pink), var(--pink2)); color: #fff; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.idea-t { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.idea-h { font-size: 12px; color: var(--muted); font-style: italic; line-height: 1.5; }
+.idea-tag { display: inline-block; background: rgba(238,43,108,.15); color: var(--pink); font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-top: 6px; }
+
+/* ── TENDANCES ── */
+.trends-screen { background: var(--card2); padding-bottom: 70px; }
+.trends-body { padding: 16px 18px; }
+.trend-section { margin-bottom: 20px; }
+.ts-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; margin-bottom: 10px; }
+.trend-item { background: var(--card); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+.ti-rank { font-size: 14px; font-weight: 900; color: var(--pink); width: 22px; }
+.ti-info { flex: 1; }
+.ti-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.ti-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+.ti-badge { font-size: 9px; padding: 3px 8px; border-radius: 20px; font-weight: 700; }
+.badge-hot { background: rgba(238,43,108,.2); color: var(--pink); }
+.badge-new { background: rgba(33,150,243,.2); color: #64b5f6; }
+.badge-up  { background: rgba(76,175,80,.2); color: #81c784; }
+.sound-item { background: var(--card); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; border: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.si-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, var(--pink), var(--pink2)); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.si-info { flex: 1; }
+.si-name { font-size: 12px; font-weight: 700; color: var(--text); }
+.si-meta { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* ── CALENDRIER ── */
+.cal-screen { background: var(--card2); padding-bottom: 70px; }
+.cal-body { padding: 16px 18px; }
+.cal-week { display: flex; gap: 6px; margin-bottom: 20px; }
+.cal-day { flex: 1; text-align: center; }
+.cd-name { font-size: 9px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 5px; }
+.cd-num { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--muted); margin: 0 auto; cursor: pointer; }
+.cd-num.today { background: linear-gradient(135deg, var(--pink), var(--pink2)); color: #fff; }
+.cd-num.has { color: #fff; position: relative; }
+.cd-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--pink); margin: 3px auto 0; }
+.post-item { background: var(--card); border-radius: 14px; padding: 14px; margin-bottom: 10px; border: 1px solid var(--border); border-left: 3px solid var(--pink); }
+.pi-day { font-size: 10px; font-weight: 700; color: var(--pink); margin-bottom: 6px; text-transform: uppercase; }
+.pi-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.pi-hook { font-size: 12px; color: var(--muted); font-style: italic; }
+.pi-status { display: inline-block; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; margin-top: 8px; }
+.st-done { background: rgba(76,175,80,.2); color: #81c784; }
+.st-plan { background: rgba(255,152,0,.2); color: #ffb74d; }
+.st-idea { background: rgba(33,150,243,.2); color: #64b5f6; }
+
+/* ── SETTINGS ── */
+.settings-screen { background: var(--card2); padding-bottom: 70px; }
+.settings-body { padding: 16px 18px; }
+.profile-card { background: linear-gradient(135deg, #1e1e3a, #2d1b4e); border-radius: 18px; padding: 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; }
+.avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, var(--pink), var(--pink2)); display: flex; align-items: center; justify-content: center; font-size: 22px; }
+.p-name { font-size: 15px; font-weight: 700; color: var(--text); }
+.p-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.p-badge { font-size: 10px; background: rgba(238,43,108,.2); color: var(--pink); padding: 3px 10px; border-radius: 20px; font-weight: 700; margin-top: 6px; display: inline-block; }
+.sg { margin-bottom: 20px; }
+.sg-title { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 10px; }
+.sg-item { background: rgba(255,255,255,.04); border-radius: 12px; padding: 13px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--border); cursor: pointer; transition: all .2s; }
+.sg-item:hover { background: rgba(255,255,255,.07); }
+.sg-icon { font-size: 18px; width: 26px; text-align: center; }
+.sg-lbl { flex: 1; font-size: 13px; color: rgba(255,255,255,.8); font-weight: 500; }
+.sg-val { font-size: 12px; color: var(--muted); }
+.sg-arr { font-size: 14px; color: rgba(255,255,255,.2); }
+.lang-btns { display: flex; gap: 8px; }
+.lb-btn { flex: 1; padding: 10px 6px; border-radius: 10px; border: 1.5px solid var(--border); background: rgba(255,255,255,.04); color: var(--muted); font-size: 11px; font-weight: 700; cursor: pointer; text-align: center; font-family: 'Inter', sans-serif; transition: all .2s; }
+.lb-btn.active { border-color: var(--pink); background: rgba(238,43,108,.15); color: var(--pink); }
+
+/* ── BOTTOM NAV ── */
+.bnav { position: sticky; bottom: 0; background: var(--card); border-top: 1px solid var(--border); display: flex; padding: 10px 0 14px; z-index: 10; }
+.nav-i { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
+.nav-icon { font-size: 20px; }
+.nav-lbl { font-size: 9px; font-weight: 600; color: var(--muted); }
+.nav-i.active .nav-lbl { color: var(--pink); }
+.nav-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--pink); margin: 0 auto; }
+
+/* UTILS */
+.btn-full { width: 100%; padding: 14px; border: none; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Inter', sans-serif; transition: all .2s; }
+.btn-full:active { transform: scale(.97); }
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+.mt24 { margin-top: 24px; }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- TOPBAR -->
+  <div class="topbar" id="topbar" style="display:none">
+    <div class="topbar-logo">FlowTok</div>
+    <div class="topbar-lang">
+      <button class="tl-btn" onclick="setLang('vi',this)">🇻🇳</button>
+      <button class="tl-btn active" onclick="setLang('fr',this)">🇫🇷</button>
+      <button class="tl-btn" onclick="setLang('en',this)">🇬🇧</button>
+    </div>
+  </div>
+
+  <!-- ① LANGUE -->
+  <div class="screen active" id="s-lang">
+    <div class="lang-screen">
+      <div class="ls-logo">FlowTok</div>
+      <div class="ls-tag" id="ls-tag">Crée tes scripts TikTok en 30 secondes ✨<br>Chọn ngôn ngữ / Choose your language</div>
+      <div class="ls-grid">
+        <div class="ls-item" onclick="pickLang('vi',this)"><span class="ls-flag">🇻🇳</span><span class="ls-name">Tiếng Việt</span></div>
+        <div class="ls-item sel" onclick="pickLang('fr',this)"><span class="ls-flag">🇫🇷</span><span class="ls-name">Français</span></div>
+        <div class="ls-item" onclick="pickLang('en',this)"><span class="ls-flag">🇬🇧</span><span class="ls-name">English</span></div>
+      </div>
+      <button class="btn-grad" id="ls-cta" onclick="go('s-login')">Commencer gratuitement →</button>
+    </div>
+  </div>
+
+  <!-- ② LOGIN -->
+  <div class="screen" id="s-login">
+    <div class="auth-screen">
+      <div class="auth-logo">FlowTok</div>
+      <div class="auth-title" id="at-title">Bon retour 👋</div>
+      <div class="auth-sub" id="at-sub">Connecte-toi pour accéder à tes scripts et tendances.</div>
+      <div class="field"><label id="lbl-email">Email</label><input type="email" placeholder="toi@email.com"></div>
+      <div class="field"><label id="lbl-pw">Mot de passe</label><input type="password" placeholder="••••••••"></div>
+      <div class="forgot"><span onclick="alert('Reset par email — à implémenter 😄')">Mot de passe oublié ?</span></div>
+      <button class="btn-grad" onclick="go('s-home')" id="btn-login">Se connecter</button>
+      <div class="divider"><div class="divider-line"></div><div class="divider-txt">OU</div><div class="divider-line"></div></div>
+      <div class="auth-switch">Pas encore de compte ? <span onclick="go('s-register')" id="sw-reg">Créer un compte</span></div>
+    </div>
+  </div>
+
+  <!-- ③ REGISTER -->
+  <div class="screen" id="s-register">
+    <div class="auth-screen">
+      <div class="auth-logo">FlowTok</div>
+      <div class="auth-title">Créer un compte 🚀</div>
+      <div class="auth-sub">Rejoins des milliers de créatrices TikTok Shop.</div>
+      <div class="field"><label>Prénom / Tên</label><input type="text" placeholder="Hanni"></div>
+      <div class="field"><label>TikTok @</label><input type="text" placeholder="@banimet6"></div>
+      <div class="field"><label>Email</label><input type="email" placeholder="toi@email.com"></div>
+      <div class="field"><label>Mot de passe</label><input type="password" placeholder="••••••••"></div>
+      <button class="btn-grad mt16" onclick="go('s-onboard')">Créer mon compte →</button>
+      <div class="auth-switch mt8">Déjà un compte ? <span onclick="go('s-login')">Se connecter</span></div>
+    </div>
+  </div>
+
+  <!-- ④ ONBOARDING -->
+  <div class="screen" id="s-onboard">
+    <div class="onboard-screen">
+      <div class="ob-step">Étape 1/2 — Ton profil</div>
+      <div class="ob-title">Ce que tu vends 🛍️</div>
+      <div class="ob-sub">Dis-nous tes catégories de produits pour que FlowTok génère des scripts parfaitement adaptés.</div>
+      <div class="field"><label>Catégories principales</label></div>
+      <div class="chip-grid" id="cat-chips">
+        <div class="chip" onclick="tog(this)">👗 Mode femme</div>
+        <div class="chip sel" onclick="tog(this)">💄 Beauté & makeup</div>
+        <div class="chip" onclick="tog(this)">👟 Chaussures</div>
+        <div class="chip" onclick="tog(this)">👜 Sacs & accessoires</div>
+        <div class="chip" onclick="tog(this)">🏠 Maison & déco</div>
+        <div class="chip" onclick="tog(this)">📱 Tech & gadgets</div>
+        <div class="chip" onclick="tog(this)">🍜 Food & boissons</div>
+        <div class="chip" onclick="tog(this)">🧴 Skincare</div>
+      </div>
+      <div class="ob-title mt16">Ton style de contenu 🎬</div>
+      <div class="ob-sub" style="margin-top:6px">Comment tu parles à ton audience ?</div>
+      <div class="chip-grid">
+        <div class="chip sel" onclick="togSingle(this,'.style-chip')">😂 Humour & fun</div>
+        <div class="chip style-chip" onclick="togSingle(this,'.style-chip')">🌸 Lifestyle doux</div>
+        <div class="chip style-chip" onclick="togSingle(this,'.style-chip')">💎 Élégant & chic</div>
+        <div class="chip style-chip" onclick="togSingle(this,'.style-chip')">🔥 Direct & punchy</div>
+      </div>
+      <button class="btn-grad mt24" onclick="go('s-home')">Commencer à créer ! 🚀</button>
+    </div>
+  </div>
+
+  <!-- ⑤ HOME -->
+  <div class="screen" id="s-home">
+    <div class="home-screen">
+      <div class="home-header">
+        <div class="h-hello" id="h-hello">Bonjour 👋</div>
+        <div class="h-name">Hanni</div>
+        <div class="h-sub">@banimet6 · Plan Pro ✨</div>
+        <div class="stat-row">
+          <div class="stat"><div class="stat-n">24</div><div class="stat-l" id="sl1">Scripts créés</div></div>
+          <div class="stat"><div class="stat-n">8</div><div class="stat-l" id="sl2">Cette semaine</div></div>
+          <div class="stat"><div class="stat-n">🔥3</div><div class="stat-l" id="sl3">Jours actifs</div></div>
+        </div>
+      </div>
+      <div class="sec-title" id="h-do">Que veux-tu faire ?</div>
+      <div class="grid2">
+        <div class="qcard qc1" onclick="go('s-analyse')"><div class="qc-icon">🏆</div><div class="qc-t" id="qc-analyse">Analyser produit</div><div class="qc-s" id="qcs-analyse">Score + angles gagnants</div></div>
+        <div class="qcard qc2" onclick="go('s-script')"><div class="qc-icon">🎬</div><div class="qc-t" id="qc-script">Créer script</div><div class="qc-s" id="qcs-script">Prêt en 30 secondes</div></div>
+        <div class="qcard qc3" onclick="go('s-ideas')"><div class="qc-icon">💡</div><div class="qc-t" id="qc-ideas">Idées vidéo</div><div class="qc-s" id="qcs-ideas">7 idées générées</div></div>
+        <div class="qcard qc4" onclick="go('s-cal')"><div class="qc-icon">🗓️</div><div class="qc-t" id="qc-cal">Calendrier</div><div class="qc-s" id="qcs-cal">Plan de la semaine</div></div>
+        <div class="qcard qc5" onclick="go('s-trends')" style="grid-column:1/-1"><div class="qc-icon">📈</div><div class="qc-t" id="qc-trends">Tendances Vietnam</div><div class="qc-s" id="qcs-trends">Sons & hashtags du moment</div></div>
+      </div>
+      <div class="sec-title mt16" id="h-trends">🔥 Top tendances</div>
+      <div class="trend-row">
+        <div class="tcard"><div class="t-rank">#1</div><div class="t-info"><div class="t-name">#thoitrangnu2025</div><div class="t-views">12.4M vues · semaine</div></div><div class="t-badge">🔥 HOT</div></div>
+        <div class="tcard"><div class="t-rank">#2</div><div class="t-info"><div class="t-name">#outfitoftheday</div><div class="t-views">8.1M vues · semaine</div></div><div class="t-badge">↑ NEW</div></div>
+        <div class="tcard"><div class="t-rank">#3</div><div class="t-info"><div class="t-name">#makeupvietnam</div><div class="t-views">5.3M vues · semaine</div></div><div class="t-badge">📈 UP</div></div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="nav-i active" onclick="go('s-home')"><div class="nav-icon">🏠</div><div class="nav-lbl" id="nl-home">Accueil</div><div class="nav-dot"></div></div>
+      <div class="nav-i" onclick="go('s-analyse')"><div class="nav-icon">🏆</div><div class="nav-lbl" id="nl-analyse">Analyser</div></div>
+      <div class="nav-i" onclick="go('s-script')"><div class="nav-icon">🎬</div><div class="nav-lbl" id="nl-script">Script</div></div>
+      <div class="nav-i" onclick="go('s-trends')"><div class="nav-icon">📈</div><div class="nav-lbl" id="nl-trends">Tendances</div></div>
+      <div class="nav-i" onclick="go('s-settings')"><div class="nav-icon">⚙️</div><div class="nav-lbl" id="nl-settings">Réglages</div></div>
+    </div>
+  </div>
+
+  <!-- ⑥ ANALYSE PRODUIT -->
+  <div class="screen" id="s-analyse">
+    <div class="analyse-screen">
+      <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3>🏆 Analyser un produit</h3></div>
+      <div class="analyse-body">
+        <div class="upload-zone" onclick="simulateUpload()">
+          <div class="uz-icon" id="uz-icon">📸</div>
+          <div class="uz-title" id="uz-title">Upload les photos du produit</div>
+          <div class="uz-sub" id="uz-sub">Photos envoyées par le vendeur</div>
+        </div>
+        <div class="preview-imgs" id="preview-imgs" style="display:none">
+          <div class="prev-img">👗</div><div class="prev-img">🌸</div><div class="prev-img">✨</div>
+          <div class="prev-img">💄</div>
+        </div>
+        <div class="field"><label>Description du vendeur</label><input type="text" id="prod-desc" placeholder="Ex: Blush stick 3-en-1, 79k, 21K vendus/mois..."></div>
+        <div class="field"><label>Prix</label><input type="text" placeholder="Ex: 79.000đ"></div>
+        <button class="btn-full btn-grad mt8" onclick="showScore()">🔍 Analyser ce produit</button>
+
+        <div id="score-result" style="display:none; margin-top:18px">
+          <div class="score-card">
+            <div class="score-top"><div class="score-title">Score produit</div><div class="score-badge">87/100 ✅</div></div>
+            <div class="score-bar-wrap"><div class="score-bar-label"><span>Wow factor</span><span>90%</span></div><div class="score-bar"><div class="score-fill" style="width:90%"></div></div></div>
+            <div class="score-bar-wrap"><div class="score-bar-label"><span>Prix attractif</span><span>85%</span></div><div class="score-bar"><div class="score-fill" style="width:85%"></div></div></div>
+            <div class="score-bar-wrap"><div class="score-bar-label"><span>Signaux de vente</span><span>95%</span></div><div class="score-bar"><div class="score-fill" style="width:95%"></div></div></div>
+            <div class="score-bar-wrap"><div class="score-bar-label"><span>Potentiel viral</span><span>80%</span></div><div class="score-bar"><div class="score-fill" style="width:80%"></div></div></div>
+            <div class="score-verdict"><div class="sv-title">✅ Produit gagnant</div><div class="sv-text">21.9K vendus en 30 jours, prix flash -60%, format compact et polyvalent. Fort potentiel de conversion.</div></div>
+          </div>
+
+          <div class="sec-title" style="margin:0 0 12px">🎯 Choisis ton angle</div>
+          <div class="angle-card sel" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">😮</span><span class="ac-type">Curiosité</span></div><div class="ac-hook">"Attends… ce truc rose remplace 3 produits de maquillage ?!"</div></div>
+          <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">🤯</span><span class="ac-type">Surprise</span></div><div class="ac-hook">"J'ai testé ça à la place de mon blush à 400k — choquée du résultat"</div></div>
+          <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">💸</span><span class="ac-type">Valeur</span></div><div class="ac-hook">"-60% aujourd'hui seulement, 21.000 filles l'ont déjà acheté ce mois"</div></div>
+          <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">🔥</span><span class="ac-type">FOMO</span></div><div class="ac-hook">"Flash sale qui se termine dans 18h — après c'est fini à ce prix"</div></div>
+          <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">✨</span><span class="ac-type">Transformation</span></div><div class="ac-hook">"10 secondes pour un look naturel et lumineux — avant/après bluffant"</div></div>
+
+          <button class="btn-full btn-grad mt16" onclick="go('s-script')">🎬 Générer le script →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑦ SCRIPT -->
+  <div class="screen" id="s-script">
+    <div class="script-screen">
+      <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3>🎬 Créer un script</h3></div>
+      <div class="script-body">
+        <div class="s-field"><label>Nom du produit *</label><input type="text" placeholder="Ex: Blush stick Kabeina"></div>
+        <div class="s-field"><label>Type *</label><input type="text" placeholder="Ex: maquillage, vêtement..."></div>
+        <div class="s-field"><label>Points forts</label><input type="text" placeholder="Ex: 3-en-1, durable, prix flash..."></div>
+        <div class="s-field"><label>Prix</label><input type="text" placeholder="Ex: 79.000đ"></div>
+        <div class="s-field"><label>Ton de communication</label>
+          <div class="tone-row">
+            <div class="tone-btn sel" onclick="selTone(this)">😂 Humour</div>
+            <div class="tone-btn" onclick="selTone(this)">🌸 Lifestyle</div>
+            <div class="tone-btn" onclick="selTone(this)">💎 Élégant</div>
+            <div class="tone-btn" onclick="selTone(this)">🔥 Punchy</div>
+          </div>
+        </div>
+        <button class="btn-full btn-grad" onclick="showScript()">✨ Générer mon script</button>
+        <div id="script-result" style="display:none; margin-top:16px">
+          <div class="result-block rb-hook"><div class="rb-lbl" style="color:var(--pink)">🎣 Hook — 3 premières secondes</div><div class="rb-txt">Attends… ce truc rose remplace MON blush, mon fard à paupières ET mon rouge à lèvres ?! 😱</div></div>
+          <div class="result-block rb-body"><div class="rb-lbl" style="color:#ce93d8">📝 Body</div><div class="rb-txt">Le Blush Stick Kabeina c'est 3-en-1 — yeux, lèvres, joues. Texture mousse ultra douce, tient toute la journée. 21.000 filles l'ont déjà acheté ce mois 🔥 Et là il est à -60% soit 79k seulement !</div></div>
+          <div class="result-block rb-cta"><div class="rb-lbl" style="color:#81c784">🛍️ CTA</div><div class="rb-txt">Lien dans la vidéo — flash sale qui se termine bientôt, fonce avant qu'il soit trop tard ! 💨</div></div>
+          <div class="result-block rb-cap"><div class="rb-lbl" style="color:#ffb74d">📱 Caption</div><div class="rb-txt">Ce stick rose qui remplace 3 produits de makeup... 😳 #blush #makeupvietnam #tiktokmakeup</div></div>
+          <div class="result-block rb-hash"><div class="rb-lbl" style="color:#64b5f6">#️⃣ Hashtags</div><div class="rb-txt">#makeupvietnam #blushstick #trangdiem #tiktokvietnam #beautyreview #flashsale #mua1duoc3</div></div>
+          <div class="btn-row">
+            <button class="btn-copy" onclick="this.textContent='✅ Copié!'">📋 Copier</button>
+            <button class="btn-save">💾 Sauver</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑧ IDÉES -->
+  <div class="screen" id="s-ideas">
+    <div class="ideas-screen">
+      <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3>💡 Idées de vidéos</h3></div>
+      <div class="ideas-body">
+        <div class="s-field"><label>Contexte / Thème</label><input type="text" placeholder="Ex: makeup, été, back to school..."></div>
+        <button class="btn-full btn-grad mb12" onclick="showIdeas()" style="margin-bottom:14px">✨ Générer 7 idées</button>
+        <div id="ideas-list">
+          <div class="idea-item"><div class="idea-num">1</div><div><div class="idea-t">Le produit qu'elles utilisent toutes sans le dire 👀</div><div class="idea-h">"Ce blush je l'ai vu sur 10 créatrices différentes cette semaine…"</div><span class="idea-tag">Curiosité</span></div></div>
+          <div class="idea-item"><div class="idea-num">2</div><div><div class="idea-t">Test honnête — je le garde ou je le rends ?</div><div class="idea-h">"Je vous dis vraiment ce que je pense après 1 semaine de test"</div><span class="idea-tag">Review</span></div></div>
+          <div class="idea-item"><div class="idea-num">3</div><div><div class="idea-t">Routine makeup 5 min chrono ⏱️</div><div class="idea-h">"Avec ce seul produit, mon look est fait en 5 minutes top"</div><span class="idea-tag">Tuto</span></div></div>
+          <div class="idea-item"><div class="idea-num">4</div><div><div class="idea-t">Ce que j'aurais voulu savoir avant d'acheter</div><div class="idea-h">"Honnêtement voilà les vrais + et les vrais - de ce produit"</div><span class="idea-tag">Honnête</span></div></div>
+          <div class="idea-item"><div class="idea-num">5</div><div><div class="idea-t">Dupe de luxe à 79k 💸</div><div class="idea-h">"Ce stick à 79k fait exactement la même chose que mon produit à 400k"</div><span class="idea-tag">Valeur</span></div></div>
+          <div class="idea-item"><div class="idea-num">6</div><div><div class="idea-t">POV : tu découvres ce produit pour la 1ère fois</div><div class="idea-h">"Ma réaction authentique en déballant ce produit que tout le monde s'arrache"</div><span class="idea-tag">Unboxing</span></div></div>
+          <div class="idea-item"><div class="idea-num">7</div><div><div class="idea-t">Avant / après en 10 secondes ✨</div><div class="idea-h">"Résultat bluffant — regardez bien la différence"</div><span class="idea-tag">Transformation</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑨ TENDANCES -->
+  <div class="screen" id="s-trends">
+    <div class="trends-screen">
+      <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3>📈 Tendances Vietnam</h3></div>
+      <div class="trends-body">
+        <div class="trend-section">
+          <div class="ts-title">🔥 Hashtags chauds cette semaine</div>
+          <div class="trend-item"><div class="ti-rank">#1</div><div class="ti-info"><div class="ti-name">#thoitrangnu2025</div><div class="ti-meta">12.4M vues · Mode femme</div></div><div class="ti-badge badge-hot">🔥 HOT</div></div>
+          <div class="trend-item"><div class="ti-rank">#2</div><div class="ti-info"><div class="ti-name">#makeupvietnam</div><div class="ti-meta">8.7M vues · Beauté</div></div><div class="ti-badge badge-hot">🔥 HOT</div></div>
+          <div class="trend-item"><div class="ti-rank">#3</div><div class="ti-info"><div class="ti-name">#outfitoftheday</div><div class="ti-meta">6.1M vues · Lifestyle</div></div><div class="ti-badge badge-new">↑ NEW</div></div>
+          <div class="trend-item"><div class="ti-rank">#4</div><div class="ti-info"><div class="ti-name">#skincareroutine</div><div class="ti-meta">4.8M vues · Beauté</div></div><div class="ti-badge badge-up">📈 UP</div></div>
+          <div class="trend-item"><div class="ti-rank">#5</div><div class="ti-info"><div class="ti-name">#tiktokmua</div><div class="ti-meta">3.2M vues · Shopping</div></div><div class="ti-badge badge-up">📈 UP</div></div>
+        </div>
+        <div class="trend-section">
+          <div class="ts-title">🎵 Sons qui buzzent</div>
+          <div class="sound-item"><div class="si-icon">🎵</div><div class="si-info"><div class="si-name">Espresso — Sabrina Carpenter</div><div class="si-meta">2.1M vidéos · Lifestyle & OOTD</div></div></div>
+          <div class="sound-item"><div class="si-icon">🎵</div><div class="si-info"><div class="si-name">Son original trending VN #1</div><div class="si-meta">890K vidéos · Makeup & beauty</div></div></div>
+          <div class="sound-item"><div class="si-icon">🎵</div><div class="si-info"><div class="si-name">APT. — Rose & Bruno Mars</div><div class="si-meta">650K vidéos · Fashion & fun</div></div></div>
+        </div>
+        <div class="trend-section">
+          <div class="ts-title">🏆 Produits qui buzzent</div>
+          <div class="trend-item"><div class="ti-rank">①</div><div class="ti-info"><div class="ti-name">Blush stick 3-en-1</div><div class="ti-meta">21.9K vendus en 30j · Beauté</div></div><div class="ti-badge badge-hot">🔥</div></div>
+          <div class="trend-item"><div class="ti-rank">②</div><div class="ti-info"><div class="ti-name">Váy linen tay bồng</div><div class="ti-meta">15.2K vendus en 30j · Mode</div></div><div class="ti-badge badge-hot">🔥</div></div>
+          <div class="trend-item"><div class="ti-rank">③</div><div class="ti-info"><div class="ti-name">Serum vitamin C local</div><div class="ti-meta">9.8K vendus en 30j · Skincare</div></div><div class="ti-badge badge-new">↑</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑩ CALENDRIER -->
+  <div class="screen" id="s-cal">
+    <div class="cal-screen">
+      <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3>🗓️ Calendrier de contenu</h3></div>
+      <div class="cal-body">
+        <div class="cal-week">
+          <div class="cal-day"><div class="cd-name">Lun</div><div class="cd-num has">21</div><div class="cd-dot"></div></div>
+          <div class="cal-day"><div class="cd-name">Mar</div><div class="cd-num has">22</div><div class="cd-dot"></div></div>
+          <div class="cal-day"><div class="cd-name">Mer</div><div class="cd-num today">23</div><div class="cd-dot"></div></div>
+          <div class="cal-day"><div class="cd-name">Jeu</div><div class="cd-num has">24</div><div class="cd-dot"></div></div>
+          <div class="cal-day"><div class="cd-name">Ven</div><div class="cd-num">25</div></div>
+          <div class="cal-day"><div class="cd-name">Sam</div><div class="cd-num">26</div></div>
+          <div class="cal-day"><div class="cd-name">Dim</div><div class="cd-num">27</div></div>
+        </div>
+        <div class="post-item"><div class="pi-day">Lundi 21</div><div class="pi-title">Test honnête — Blush Kabeina</div><div class="pi-hook">"Je vous dis vraiment ce que je pense après 1 semaine"</div><span class="pi-status st-done">✅ Posté</span></div>
+        <div class="post-item"><div class="pi-day">Mardi 22</div><div class="pi-title">Dupe luxe à 79k 💸</div><div class="pi-hook">"Même résultat que mon produit à 400k"</div><span class="pi-status st-done">✅ Posté</span></div>
+        <div class="post-item" style="border-left-color:#ff9800"><div class="pi-day">Aujourd'hui — Mercredi 23</div><div class="pi-title">Routine makeup 5 min ⏱️</div><div class="pi-hook">"Un seul produit, look fait en 5 minutes top"</div><span class="pi-status st-plan">📝 À filmer</span></div>
+        <div class="post-item" style="border-left-color:#2196f3"><div class="pi-day">Jeudi 24</div><div class="pi-title">Avant / Après en 10 secondes ✨</div><div class="pi-hook">"Résultat bluffant — regardez bien"</div><span class="pi-status st-idea">💡 Idée</span></div>
+        <button class="btn-full btn-grad mt16" onclick="go('s-script')">+ Ajouter un post</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑪ SETTINGS -->
+  <div class="screen" id="s-settings">
+    <div class="settings-screen">
+      <div class="screen-hdr"><h3>⚙️ Réglages</h3></div>
+      <div class="settings-body">
+        <div class="profile-card">
+          <div class="avatar">👗</div>
+          <div><div class="p-name">Hanni</div><div class="p-sub">@banimet6 · TikTok Shop</div><div class="p-badge">✨ Plan Pro — 99k/mois</div></div>
+        </div>
+        <div class="sg">
+          <div class="sg-title">🌐 Langue</div>
+          <div class="lang-btns">
+            <div class="lb-btn" onclick="setLangBtn(this,'vi')">🇻🇳 Việt</div>
+            <div class="lb-btn active" onclick="setLangBtn(this,'fr')">🇫🇷 Français</div>
+            <div class="lb-btn" onclick="setLangBtn(this,'en')">🇬🇧 English</div>
+          </div>
+        </div>
+        <div class="sg">
+          <div class="sg-title">👤 Mon compte</div>
+          <div class="sg-item"><div class="sg-icon">📱</div><div class="sg-lbl">Compte TikTok</div><div class="sg-val">@banimet6</div><div class="sg-arr">›</div></div>
+          <div class="sg-item"><div class="sg-icon">💳</div><div class="sg-lbl">Mon abonnement</div><div class="sg-val">Pro · 99k/mois</div><div class="sg-arr">›</div></div>
+          <div class="sg-item"><div class="sg-icon">🔔</div><div class="sg-lbl">Notifications</div><div class="sg-val">Activées</div><div class="sg-arr">›</div></div>
+          <div class="sg-item"><div class="sg-icon">🛍️</div><div class="sg-lbl">Catégories produits</div><div class="sg-val">Mode, Beauté</div><div class="sg-arr">›</div></div>
+        </div>
+        <div class="sg">
+          <div class="sg-title">ℹ️ Application</div>
+          <div class="sg-item"><div class="sg-icon">⭐</div><div class="sg-lbl">Noter FlowTok</div><div class="sg-arr">›</div></div>
+          <div class="sg-item"><div class="sg-icon">💬</div><div class="sg-lbl">Nous contacter</div><div class="sg-arr">›</div></div>
+          <div class="sg-item" onclick="go('s-lang')"><div class="sg-icon">🚪</div><div class="sg-lbl">Se déconnecter</div><div class="sg-arr">›</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="bnav">
+      <div class="nav-i" onclick="go('s-home')"><div class="nav-icon">🏠</div><div class="nav-lbl">Accueil</div></div>
+      <div class="nav-i" onclick="go('s-analyse')"><div class="nav-icon">🏆</div><div class="nav-lbl">Analyser</div></div>
+      <div class="nav-i" onclick="go('s-script')"><div class="nav-icon">🎬</div><div class="nav-lbl">Script</div></div>
+      <div class="nav-i" onclick="go('s-trends')"><div class="nav-icon">📈</div><div class="nav-lbl">Tendances</div></div>
+      <div class="nav-i active" onclick="go('s-settings')"><div class="nav-icon">⚙️</div><div class="nav-lbl">Réglages</div><div class="nav-dot"></div></div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+// ── LANG ──
+let lang = 'fr';
+const T = {
+  fr: { cta:'Commencer gratuitement →', hello:'Bonjour 👋', do:'Que veux-tu faire ?', sl1:'Scripts créés', sl2:'Cette semaine', sl3:'Jours actifs', trends:'🔥 Top tendances', home:'Accueil', analyse:'Analyser', script:'Script', settings:'Réglages', atTitle:'Bon retour 👋', atSub:'Connecte-toi pour accéder à tes scripts et tendances.' },
+  vi: { cta:'Bắt đầu miễn phí →', hello:'Xin chào 👋', do:'Bạn muốn làm gì ?', sl1:'Script đã tạo', sl2:'Tuần này', sl3:'Ngày hoạt động', trends:'🔥 Xu hướng hot', home:'Trang chủ', analyse:'Phân tích', script:'Script', settings:'Cài đặt', atTitle:'Chào mừng trở lại 👋', atSub:'Đăng nhập để xem script và xu hướng của bạn.' },
+  en: { cta:'Start for free →', hello:'Hello 👋', do:'What do you want to do?', sl1:'Scripts created', sl2:'This week', sl3:'Active days', trends:'🔥 Top trends', home:'Home', analyse:'Analyze', script:'Script', settings:'Settings', atTitle:'Welcome back 👋', atSub:'Sign in to access your scripts and trends.' }
+};
+
+function applyLang(l) {
+  lang = l;
+  const t = T[l];
+  document.getElementById('ls-cta').textContent = t.cta;
+  document.getElementById('h-hello').textContent = t.hello;
+  document.getElementById('h-do').textContent = t.do;
+  document.getElementById('sl1').textContent = t.sl1;
+  document.getElementById('sl2').textContent = t.sl2;
+  document.getElementById('sl3').textContent = t.sl3;
+  document.getElementById('h-trends').textContent = t.trends;
+  document.getElementById('nl-home').textContent = t.home;
+  document.getElementById('nl-analyse').textContent = t.analyse;
+  document.getElementById('nl-script').textContent = t.script;
+  document.getElementById('nl-trends').textContent = t.trends.replace('🔥 ','');
+  document.getElementById('nl-settings').textContent = t.settings;
+  document.getElementById('at-title').textContent = t.atTitle;
+  document.getElementById('at-sub').textContent = t.atSub;
+  // topbar buttons
+  document.querySelectorAll('.tl-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.lb-btn').forEach(b => b.classList.remove('active'));
+  const flags = {'vi':'🇻🇳','fr':'🇫🇷','en':'🇬🇧'};
+  document.querySelectorAll('.tl-btn').forEach(b => { if(b.textContent.includes(flags[l])) b.classList.add('active'); });
+  document.querySelectorAll('.lb-btn').forEach(b => { if(b.textContent.includes(flags[l])) b.classList.add('active'); });
+}
+
+function pickLang(l, el) {
+  document.querySelectorAll('.ls-item').forEach(i => i.classList.remove('sel'));
+  el.classList.add('sel');
+  applyLang(l);
+}
+function setLang(l, el) {
+  document.querySelectorAll('.tl-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  applyLang(l);
+}
+function setLangBtn(el, l) {
+  document.querySelectorAll('.lb-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  applyLang(l);
+}
+
+// ── NAV ──
+function go(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const showTop = !['s-lang','s-login','s-register','s-onboard'].includes(id);
+  document.getElementById('topbar').style.display = showTop ? 'flex' : 'none';
+  window.scrollTo(0,0);
+}
+
+// ── CHIPS ──
+function tog(el) { el.classList.toggle('sel'); }
+function togSingle(el, cls) { document.querySelectorAll(cls).forEach(c => c.classList.remove('sel')); el.classList.add('sel'); }
+function selTone(el) { document.querySelectorAll('.tone-btn').forEach(b => b.classList.remove('sel')); el.classList.add('sel'); }
+function selAngle(el) { document.querySelectorAll('.angle-card').forEach(c => c.classList.remove('sel')); el.classList.add('sel'); }
+
+// ── SIMULATE UPLOAD ──
+function simulateUpload() {
+  document.getElementById('uz-icon').textContent = '✅';
+  document.getElementById('uz-title').textContent = '4 photos chargées';
+  document.getElementById('uz-sub').textContent = 'Blush Kabeina · produit analysé';
+  document.getElementById('preview-imgs').style.display = 'flex';
+}
+
+// ── SHOW SCORE ──
+function showScore() {
+  document.getElementById('score-result').style.display = 'block';
+  setTimeout(() => document.getElementById('score-result').scrollIntoView({behavior:'smooth'}), 100);
+}
+
+// ── SHOW SCRIPT ──
+function showScript() {
+  document.getElementById('script-result').style.display = 'block';
+  setTimeout(() => document.getElementById('script-result').scrollIntoView({behavior:'smooth'}), 100);
+}
+
+// ── SHOW IDEAS ──
+function showIdeas() { /* idées déjà affichées par défaut */ }
+</script>
+</body>
+</html>
