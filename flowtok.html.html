@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0a0a">
+<title>FlowTok</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--pink:#fe2c55;--cyan:#00f2ea;--dark:#0a0a0a;--card:#141414;--card2:#0f0f0f;--border:rgba(255,255,255,.08);--muted:rgba(255,255,255,.38);--text:#fff;--r:14px;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html{height:100%;height:-webkit-fill-available;}
+body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);height:100vh;height:-webkit-fill-available;overflow:hidden;display:flex;flex-direction:column;}
+
+/* LOGO GLITCH */
+.logo-glitch{font-family:'Montserrat',sans-serif;font-weight:900;position:relative;display:inline-block;}
+.logo-glitch::before{content:attr(data-text);position:absolute;left:-2px;top:1px;color:var(--cyan);opacity:.85;clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
+.logo-glitch::after{content:attr(data-text);position:absolute;left:2px;top:-1px;color:var(--pink);opacity:.85;clip-path:polygon(0 0,100% 0,100% 100%,0 100%);}
+
+/* TOPBAR */
+#topbar{display:none;flex-shrink:0;background:var(--dark);padding:12px 16px 10px;border-bottom:1px solid var(--border);align-items:center;justify-content:space-between;}
+.topbar-logo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:18px;color:#fff;position:relative;}
+.topbar-logo::before{content:'FlowTok';position:absolute;left:-2px;top:1px;color:var(--cyan);opacity:.85;}
+.topbar-logo::after{content:'FlowTok';position:absolute;left:2px;top:-1px;color:var(--pink);opacity:.85;}
+.tl-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:10px;font-weight:700;padding:4px 8px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;}
+.tl-btn.active{background:rgba(254,44,85,.15);border-color:var(--pink);color:var(--pink);}
+.topbar-lang{display:flex;gap:6px;}
+
+#app{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.screen{display:none;}.screen.active{display:block;animation:fu .25s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+
+/* LANG */
+.lang-screen{min-height:100vh;min-height:-webkit-fill-available;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px;text-align:center;background:var(--dark);}
+.ls-logo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:72px;color:#fff;position:relative;margin-bottom:12px;line-height:1;}
+.ls-logo::before{content:'FlowTok';position:absolute;left:-4px;top:3px;color:var(--cyan);opacity:.85;}
+.ls-logo::after{content:'FlowTok';position:absolute;left:4px;top:-3px;color:var(--pink);opacity:.85;}
+.ls-sub{font-size:13px;color:var(--muted);margin-bottom:56px;line-height:1.7;}
+.ls-hint{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:16px;font-weight:600;}
+.ls-grid{display:flex;gap:12px;margin-bottom:56px;width:100%;}
+.ls-item{flex:1;padding:18px 8px;border-radius:18px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:8px;}
+.ls-item.sel{border-color:var(--pink);background:rgba(254,44,85,.1);}
+.ls-flag{font-size:28px;}.ls-name{font-size:12px;font-weight:700;color:var(--text);}
+.btn-grad{width:100%;padding:17px;background:linear-gradient(135deg,var(--pink),#ff6b35);border:none;border-radius:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;box-shadow:0 8px 28px rgba(254,44,85,.35);transition:all .2s;}
+.btn-grad:active{transform:scale(.97);}
+
+/* AUTH */
+.auth-screen{min-height:100vh;padding:50px 24px 30px;background:var(--dark);}
+.auth-logo{font-family:'Montserrat',sans-serif;font-weight:900;font-size:26px;color:#fff;position:relative;display:inline-block;margin-bottom:12px;}
+.auth-logo::before{content:'FlowTok';position:absolute;left:-2px;top:1px;color:var(--cyan);opacity:.85;}
+.auth-logo::after{content:'FlowTok';position:absolute;left:2px;top:-1px;color:var(--pink);opacity:.85;}
+.auth-title{font-size:24px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.auth-sub{font-size:13px;color:var(--muted);margin-bottom:36px;line-height:1.6;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:7px;}
+.field input{width:100%;padding:14px 16px;background:rgba(255,255,255,.06);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:15px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;}
+.field input:focus{border-color:var(--pink);}
+.forgot{text-align:right;margin-top:-6px;margin-bottom:22px;}
+.forgot span{font-size:13px;color:var(--pink);cursor:pointer;font-weight:600;}
+.auth-switch{text-align:center;margin-top:22px;font-size:13px;color:var(--muted);}
+.auth-switch span{color:var(--pink);font-weight:700;cursor:pointer;}
+.divider{display:flex;align-items:center;gap:12px;margin:22px 0;}
+.divider-line{flex:1;height:1px;background:var(--border);}
+.divider-txt{font-size:11px;color:var(--muted);font-weight:600;}
+
+/* ONBOARD */
+.onboard-screen{min-height:100vh;padding:50px 24px 40px;background:var(--dark);}
+.ob-step{font-size:11px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.ob-title{font-size:22px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.ob-sub{font-size:13px;color:var(--muted);margin-bottom:28px;line-height:1.6;}
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+.chip{padding:9px 15px;border-radius:22px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:rgba(255,255,255,.7);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;}
+.chip.sel{border-color:var(--pink);background:rgba(254,44,85,.15);color:var(--pink);}
+
+/* HOME */
+.home-screen{padding-bottom:80px;}
+.home-header{background:linear-gradient(135deg,#1a0a0f,#2a0a15,#1a0a0f);border-bottom:1px solid rgba(254,44,85,.2);padding:24px 20px 22px;}
+.h-hello{font-size:12px;color:var(--muted);margin-bottom:3px;}
+.h-name{font-size:26px;font-weight:900;color:#fff;}
+.h-sub{font-size:11px;color:var(--muted);margin-top:4px;}
+.stat-row{display:flex;gap:10px;margin-top:18px;}
+.stat{flex:1;background:rgba(255,255,255,.06);border-radius:14px;padding:12px;text-align:center;border:1px solid var(--border);}
+.stat-n{font-size:22px;font-weight:800;color:#fff;}
+.stat-l{font-size:9px;color:var(--muted);margin-top:3px;}
+.sec-title{font-size:13px;font-weight:700;color:var(--muted);margin:20px 18px 12px;text-transform:uppercase;letter-spacing:.5px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 18px;}
+.qcard{border-radius:18px;padding:18px 14px;cursor:pointer;border:1px solid var(--border);transition:transform .15s;}
+.qcard:active{transform:scale(.96);}
+.qc1{background:linear-gradient(135deg,#1a0a1e,#2a1040);}
+.qc2{background:linear-gradient(135deg,#0a1a0f,#0f2a1a);}
+.qc3{background:linear-gradient(135deg,#1a0a0f,#2a1015);}
+.qc4{background:linear-gradient(135deg,#1a150a,#2a200f);}
+.qc5{background:linear-gradient(135deg,#0a151a,#0f202a);}
+.qc-icon{font-size:28px;margin-bottom:10px;}
+.qc-t{font-size:13px;font-weight:700;color:#fff;margin-bottom:4px;}
+.qc-s{font-size:11px;color:var(--muted);line-height:1.4;}
+.tcard{background:rgba(255,255,255,.04);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.t-rank{font-size:15px;font-weight:900;color:var(--pink);width:22px;}
+.t-info{flex:1;}.t-name{font-size:12px;font-weight:600;color:#fff;}
+.t-views{font-size:10px;color:var(--muted);margin-top:2px;}
+.t-badge{font-size:9px;background:rgba(254,44,85,.2);color:var(--pink);padding:3px 8px;border-radius:20px;font-weight:700;}
+
+/* SCREEN HDR */
+.screen-hdr{background:var(--card);padding:16px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5;}
+.back-btn{font-size:22px;cursor:pointer;color:var(--text);background:none;border:none;line-height:1;}
+.screen-hdr h3{font-size:16px;font-weight:700;color:var(--text);}
+
+/* ANALYSE */
+.analyse-body{padding:18px;padding-bottom:90px;}
+.upload-zone{border:2px dashed rgba(254,44,85,.4);border-radius:18px;padding:32px 20px;text-align:center;cursor:pointer;background:rgba(254,44,85,.04);transition:all .2s;margin-bottom:16px;}
+.uz-icon{font-size:38px;margin-bottom:10px;}.uz-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px;}.uz-sub{font-size:12px;color:var(--muted);}
+.preview-imgs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.prev-img{width:72px;height:72px;border-radius:14px;background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;font-size:26px;border:1px solid var(--border);}
+.score-card{background:var(--card);border-radius:18px;padding:18px;margin-bottom:14px;border:1px solid var(--border);}
+.score-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.score-title{font-size:13px;font-weight:700;color:var(--text);}
+.score-badge{font-size:24px;font-weight:900;color:#4caf50;}
+.score-bar-wrap{margin-bottom:10px;}
+.score-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px;}
+.score-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;}
+.score-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--pink),var(--cyan));}
+.score-verdict{background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);border-radius:14px;padding:14px;margin-top:14px;}
+.sv-title{font-size:11px;font-weight:700;color:#4caf50;margin-bottom:4px;}.sv-text{font-size:12px;color:rgba(255,255,255,.7);line-height:1.6;}
+.angle-card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border:1.5px solid var(--border);cursor:pointer;transition:all .2s;}
+.angle-card.sel{border-color:var(--pink);background:rgba(254,44,85,.08);}
+.ac-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+.ac-icon{font-size:20px;}.ac-type{font-size:12px;font-weight:700;color:var(--pink);}
+.ac-hook{font-size:13px;color:rgba(255,255,255,.8);line-height:1.6;font-style:italic;}
+
+/* SCRIPT */
+.script-body{padding:16px 18px;padding-bottom:90px;}
+.s-field{margin-bottom:13px;}
+.s-field label{display:block;font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;}
+.s-field input{width:100%;padding:13px 14px;background:rgba(255,255,255,.06);border:1.5px solid var(--border);border-radius:var(--r);color:var(--text);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:all .2s;}
+.s-field input:focus{border-color:var(--pink);}
+.tone-row{display:flex;gap:8px;margin-bottom:18px;}
+.tone-btn{flex:1;padding:10px 4px;border-radius:10px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:10px;font-weight:700;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;transition:all .2s;}
+.tone-btn.sel{border-color:var(--pink);background:rgba(254,44,85,.15);color:var(--pink);}
+.result-block{background:rgba(255,255,255,.04);border-radius:12px;padding:13px;margin-bottom:8px;}
+.rb-lbl{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:7px;}
+.rb-txt{font-size:13px;color:rgba(255,255,255,.8);line-height:1.7;white-space:pre-line;}
+.rb-hook{border-left:3px solid var(--pink);}
+.rb-body{border-left:3px solid #9c27b0;}
+.rb-cta{border-left:3px solid #4caf50;}
+.rb-cap{border-left:3px solid #ff9800;}
+.rb-hash{border-left:3px solid var(--cyan);}
+.btn-row{display:flex;gap:8px;margin-top:12px;}
+.btn-copy{flex:2;padding:14px;background:linear-gradient(135deg,var(--pink),#ff6b35);border:none;border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-save{flex:1;padding:14px;background:rgba(255,255,255,.08);border:none;border-radius:12px;color:var(--text);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+
+/* IDEAS */
+.ideas-body{padding:16px 18px;padding-bottom:90px;}
+.idea-item{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid var(--border);display:flex;gap:12px;align-items:flex-start;}
+.idea-num{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--pink),#ff6b35);color:#fff;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.idea-t{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.idea-h{font-size:12px;color:var(--muted);font-style:italic;line-height:1.5;}
+.idea-tag{display:inline-block;background:rgba(254,44,85,.15);color:var(--pink);font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:7px;}
+
+/* TRENDS */
+.trends-body{padding:16px 18px;padding-bottom:90px;}
+.ts-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px;}
+.trend-item{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.ti-rank{font-size:14px;font-weight:900;color:var(--pink);width:22px;}
+.ti-info{flex:1;}.ti-name{font-size:13px;font-weight:600;color:var(--text);}
+.ti-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.ti-badge{font-size:9px;padding:3px 8px;border-radius:20px;font-weight:700;}
+.badge-hot{background:rgba(254,44,85,.2);color:var(--pink);}
+.badge-new{background:rgba(0,242,234,.15);color:var(--cyan);}
+.badge-up{background:rgba(76,175,80,.2);color:#81c784;}
+.sound-item{background:var(--card);border-radius:12px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.si-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,var(--pink),#ff6b35);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.si-name{font-size:12px;font-weight:700;color:var(--text);}
+.si-meta{font-size:10px;color:var(--muted);margin-top:2px;}
+.trend-section{margin-bottom:22px;}
+
+/* CAL */
+.cal-body{padding:16px 18px;padding-bottom:90px;}
+.cal-week{display:flex;gap:6px;margin-bottom:22px;}
+.cal-day{flex:1;text-align:center;}
+.cd-name{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;margin-bottom:5px;}
+.cd-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);margin:0 auto;cursor:pointer;}
+.cd-num.today{background:linear-gradient(135deg,var(--pink),#ff6b35);color:#fff;}
+.cd-num.has{color:#fff;}
+.cd-dot{width:4px;height:4px;border-radius:50%;background:var(--pink);margin:3px auto 0;}
+.post-item{background:var(--card);border-radius:14px;padding:14px;margin-bottom:10px;border:1px solid var(--border);border-left:3px solid var(--pink);}
+.pi-day{font-size:10px;font-weight:700;color:var(--pink);margin-bottom:6px;text-transform:uppercase;}
+.pi-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.pi-hook{font-size:12px;color:var(--muted);font-style:italic;}
+.pi-status{display:inline-block;font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;margin-top:8px;}
+.st-done{background:rgba(76,175,80,.2);color:#81c784;}
+.st-plan{background:rgba(255,152,0,.2);color:#ffb74d;}
+.st-idea{background:rgba(0,242,234,.15);color:var(--cyan);}
+
+/* SETTINGS */
+.settings-body{padding:16px 18px;padding-bottom:90px;}
+.profile-card{background:linear-gradient(135deg,#1a0a1e,#2a1040);border-radius:18px;padding:20px;margin-bottom:22px;display:flex;align-items:center;gap:14px;}
+.avatar{width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--pink),#ff6b35);display:flex;align-items:center;justify-content:center;font-size:24px;}
+.p-name{font-size:16px;font-weight:700;color:var(--text);}
+.p-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.p-badge{font-size:10px;background:rgba(254,44,85,.2);color:var(--pink);padding:3px 10px;border-radius:20px;font-weight:700;margin-top:7px;display:inline-block;}
+.sg{margin-bottom:22px;}
+.sg-title{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;}
+.sg-item{background:rgba(255,255,255,.04);border-radius:12px;padding:14px;margin-bottom:6px;display:flex;align-items:center;gap:12px;border:1px solid var(--border);cursor:pointer;}
+.sg-icon{font-size:18px;width:26px;text-align:center;}
+.sg-lbl{flex:1;font-size:13px;color:rgba(255,255,255,.8);font-weight:500;}
+.sg-val{font-size:12px;color:var(--muted);}
+.sg-arr{font-size:14px;color:rgba(255,255,255,.2);}
+.lang-btns{display:flex;gap:8px;}
+.lb-btn{flex:1;padding:11px 6px;border-radius:10px;border:1.5px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;text-align:center;font-family:'Inter',sans-serif;transition:all .2s;}
+.lb-btn.active{border-color:var(--pink);background:rgba(254,44,85,.15);color:var(--pink);}
+
+/* BNAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--border);display:flex;padding:10px 0;padding-bottom:max(14px,env(safe-area-inset-bottom));z-index:100;}
+.nav-i{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;}
+.nav-icon{font-size:22px;}.nav-lbl{font-size:9px;font-weight:600;color:var(--muted);}
+.nav-i.active .nav-lbl{color:var(--pink);}
+.nav-dot{width:4px;height:4px;border-radius:50%;background:var(--pink);margin:0 auto;}
+.btn-full{width:100%;padding:15px;border:none;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+.mt8{margin-top:8px;}.mt16{margin-top:16px;}.mt24{margin-top:24px;}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <div class="topbar-logo">FlowTok</div>
+  <div class="topbar-lang">
+    <button class="tl-btn" onclick="setLang('vi',this)">🇻🇳</button>
+    <button class="tl-btn active" onclick="setLang('fr',this)">🇫🇷</button>
+    <button class="tl-btn" onclick="setLang('en',this)">🇬🇧</button>
+  </div>
+</div>
+
+<div id="app">
+
+<!-- ① LANGUE -->
+<div class="screen active" id="s-lang">
+  <div class="lang-screen">
+    <div class="ls-logo">FlowTok</div>
+    <div class="ls-sub" id="ls-sub">Crée tes scripts TikTok en 30 secondes ✨<br>Chọn ngôn ngữ / Choose your language</div>
+    <div class="ls-hint" id="ls-hint">Choisissez votre langue</div>
+    <div class="ls-grid">
+      <div class="ls-item" onclick="pickLang('vi',this)"><span class="ls-flag">🇻🇳</span><span class="ls-name">Tiếng Việt</span></div>
+      <div class="ls-item sel" onclick="pickLang('fr',this)"><span class="ls-flag">🇫🇷</span><span class="ls-name">Français</span></div>
+      <div class="ls-item" onclick="pickLang('en',this)"><span class="ls-flag">🇬🇧</span><span class="ls-name">English</span></div>
+    </div>
+    <button class="btn-grad" id="ls-cta" onclick="go('s-login')">Commencer gratuitement →</button>
+  </div>
+</div>
+
+<!-- ② LOGIN -->
+<div class="screen" id="s-login">
+  <div class="auth-screen">
+    <div class="auth-logo">FlowTok</div>
+    <div class="auth-title" id="at-title">Bon retour 👋</div>
+    <div class="auth-sub" id="at-sub">Connecte-toi pour accéder à tes scripts.</div>
+    <div class="field"><label id="lbl-email">Email</label><input type="email" placeholder="toi@email.com"></div>
+    <div class="field"><label id="lbl-pw">Mot de passe</label><input type="password" placeholder="••••••••"></div>
+    <div class="forgot"><span id="lbl-forgot">Mot de passe oublié ?</span></div>
+    <button class="btn-grad" id="btn-login" onclick="signIn()">Se connecter</button>
+    <div class="divider"><div class="divider-line"></div><div class="divider-txt" id="lbl-or">OU</div><div class="divider-line"></div></div>
+    <div class="auth-switch"><span id="lbl-no-account">Pas encore de compte ?</span> <span id="sw-reg" onclick="go('s-register')">Créer un compte</span></div>
+  </div>
+</div>
+
+<!-- ③ REGISTER -->
+<div class="screen" id="s-register">
+  <div class="auth-screen">
+    <div class="auth-logo">FlowTok</div>
+    <div class="auth-title" id="reg-title">Créer un compte 🚀</div>
+    <div class="auth-sub" id="reg-sub">Rejoins des milliers de créatrices TikTok Shop.</div>
+    <div class="field"><label id="lbl-name">Prénom</label><input type="text" placeholder="Hanni"></div>
+    <div class="field"><label id="lbl-tiktok">TikTok @</label><input type="text" placeholder="@banimet6"></div>
+    <div class="field"><label id="lbl-email2">Email</label><input type="email" placeholder="toi@email.com"></div>
+    <div class="field"><label id="lbl-pw2">Mot de passe</label><input type="password" placeholder="••••••••"></div>
+    <button class="btn-grad mt16" id="btn-register" onclick="signUp()">Créer mon compte →</button>
+    <div class="auth-switch mt8"><span id="lbl-have-account">Déjà un compte ?</span> <span onclick="go('s-login')" id="sw-login">Se connecter</span></div>
+  </div>
+</div>
+
+<!-- ④ ONBOARD -->
+<div class="screen" id="s-onboard">
+  <div class="onboard-screen">
+    <div class="ob-step" id="ob-step">Étape 1/2 — Ton profil</div>
+    <div class="ob-title" id="ob-title">Ce que tu vends 🛍️</div>
+    <div class="ob-sub" id="ob-sub">Dis-nous tes catégories pour des scripts parfaitement adaptés.</div>
+    <div class="chip-grid">
+      <div class="chip" onclick="tog(this)">👗 Mode femme</div>
+      <div class="chip sel" onclick="tog(this)">💄 Beauté & makeup</div>
+      <div class="chip" onclick="tog(this)">👟 Chaussures</div>
+      <div class="chip" onclick="tog(this)">👜 Sacs & accessoires</div>
+      <div class="chip" onclick="tog(this)">🏠 Maison & déco</div>
+      <div class="chip" onclick="tog(this)">📱 Tech & gadgets</div>
+      <div class="chip" onclick="tog(this)">🍜 Food</div>
+      <div class="chip" onclick="tog(this)">🧴 Skincare</div>
+    </div>
+    <div class="ob-title mt16" id="ob-title2">Ton style de contenu 🎬</div>
+    <div class="chip-grid" style="margin-top:10px">
+      <div class="chip sel" onclick="togSingle(this,'.style-chip')">😂 Humour</div>
+      <div class="chip style-chip" onclick="togSingle(this,'.style-chip')">🌸 Lifestyle</div>
+      <div class="chip style-chip" onclick="togSingle(this,'.style-chip')">💎 Élégant</div>
+      <div class="chip style-chip" onclick="togSingle(this,'.style-chip')">🔥 Punchy</div>
+    </div>
+    <button class="btn-grad mt24" id="btn-start" onclick="go('s-home')">Commencer ! 🚀</button>
+  </div>
+</div>
+
+<!-- ⑤ HOME -->
+<div class="screen" id="s-home">
+  <div class="home-screen">
+    <div class="home-header">
+      <div class="h-hello" id="h-hello">Bonjour 👋</div>
+      <div class="h-name">Hanni</div>
+      <div class="h-sub">@banimet6 · Plan Pro ✨</div>
+      <div class="stat-row">
+        <div class="stat"><div class="stat-n">24</div><div class="stat-l" id="sl1">Scripts créés</div></div>
+        <div class="stat"><div class="stat-n">8</div><div class="stat-l" id="sl2">Cette semaine</div></div>
+        <div class="stat"><div class="stat-n">🔥3</div><div class="stat-l" id="sl3">Jours actifs</div></div>
+      </div>
+    </div>
+    <div class="sec-title" id="h-do">Que veux-tu faire ?</div>
+    <div class="grid2">
+      <div class="qcard qc1" onclick="go('s-analyse')"><div class="qc-icon">🏆</div><div class="qc-t" id="qc-a">Analyser produit</div><div class="qc-s" id="qcs-a">Score + angles gagnants</div></div>
+      <div class="qcard qc2" onclick="go('s-script')"><div class="qc-icon">🎬</div><div class="qc-t" id="qc-s">Créer script</div><div class="qc-s" id="qcs-s">Prêt en 30 secondes</div></div>
+      <div class="qcard qc3" onclick="go('s-ideas')"><div class="qc-icon">💡</div><div class="qc-t" id="qc-i">Idées vidéo</div><div class="qc-s" id="qcs-i">7 idées générées</div></div>
+      <div class="qcard qc4" onclick="go('s-cal')"><div class="qc-icon">🗓️</div><div class="qc-t" id="qc-c">Calendrier</div><div class="qc-s" id="qcs-c">Plan de la semaine</div></div>
+      <div class="qcard qc5" onclick="go('s-trends')" style="grid-column:1/-1"><div class="qc-icon">📈</div><div class="qc-t" id="qc-tr">Tendances Vietnam</div><div class="qc-s" id="qcs-tr">Sons & hashtags du moment</div></div>
+    </div>
+    <div class="sec-title mt16" id="h-trends">🔥 Top tendances</div>
+    <div style="margin:0 18px 80px">
+      <div class="tcard"><div class="t-rank">#1</div><div class="t-info"><div class="t-name">#thoitrangnu2025</div><div class="t-views">12.4M vues · semaine</div></div><div class="t-badge">🔥 HOT</div></div>
+      <div class="tcard"><div class="t-rank">#2</div><div class="t-info"><div class="t-name">#outfitoftheday</div><div class="t-views">8.1M vues</div></div><div class="t-badge">↑ NEW</div></div>
+      <div class="tcard"><div class="t-rank">#3</div><div class="t-info"><div class="t-name">#makeupvietnam</div><div class="t-views">5.3M vues</div></div><div class="t-badge">📈 UP</div></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="nav-i active" onclick="goNav('s-home',this)"><div class="nav-icon">🏠</div><div class="nav-lbl" id="nl-home">Accueil</div><div class="nav-dot"></div></div>
+    <div class="nav-i" onclick="goNav('s-analyse',this)"><div class="nav-icon">🏆</div><div class="nav-lbl" id="nl-analyse">Analyser</div></div>
+    <div class="nav-i" onclick="goNav('s-script',this)"><div class="nav-icon">🎬</div><div class="nav-lbl" id="nl-script">Script</div></div>
+    <div class="nav-i" onclick="goNav('s-trends',this)"><div class="nav-icon">📈</div><div class="nav-lbl" id="nl-trends">Tendances</div></div>
+    <div class="nav-i" onclick="goNav('s-settings',this)"><div class="nav-icon">⚙️</div><div class="nav-lbl" id="nl-settings">Réglages</div></div>
+  </div>
+</div>
+
+<!-- ⑥ ANALYSE -->
+<div class="screen" id="s-analyse">
+  <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3 id="hdr-analyse">🏆 Analyser un produit</h3></div>
+  <div class="analyse-body">
+    <div class="upload-zone" onclick="simulateUpload()">
+      <div class="uz-icon" id="uz-icon">📸</div>
+      <div class="uz-title" id="uz-title">Upload les photos produit</div>
+      <div class="uz-sub" id="uz-sub">Photos envoyées par le vendeur</div>
+    </div>
+    <div class="preview-imgs" id="preview-imgs" style="display:none">
+      <div class="prev-img">👗</div><div class="prev-img">🌸</div><div class="prev-img">✨</div><div class="prev-img">💄</div>
+    </div>
+    <div class="s-field"><label id="lbl-desc">Description du vendeur</label><input type="text" placeholder="Ex: Blush stick 3-en-1, 79k, 21K vendus..."></div>
+    <div class="s-field"><label id="lbl-prix">Prix</label><input type="text" placeholder="Ex: 79.000đ"></div>
+    <button class="btn-full btn-grad" id="btn-analyse" onclick="showScore()">🔍 Analyser ce produit</button>
+    <div id="score-result" style="display:none;margin-top:20px">
+      <div class="score-card">
+        <div class="score-top"><div class="score-title" id="score-title">Score produit</div><div class="score-badge">87/100 ✅</div></div>
+        <div class="score-bar-wrap"><div class="score-bar-label"><span id="sb1">Wow factor</span><span>90%</span></div><div class="score-bar"><div class="score-fill" style="width:90%"></div></div></div>
+        <div class="score-bar-wrap"><div class="score-bar-label"><span id="sb2">Prix attractif</span><span>85%</span></div><div class="score-bar"><div class="score-fill" style="width:85%"></div></div></div>
+        <div class="score-bar-wrap"><div class="score-bar-label"><span id="sb3">Signaux de vente</span><span>95%</span></div><div class="score-bar"><div class="score-fill" style="width:95%"></div></div></div>
+        <div class="score-bar-wrap"><div class="score-bar-label"><span id="sb4">Potentiel viral</span><span>80%</span></div><div class="score-bar"><div class="score-fill" style="width:80%"></div></div></div>
+        <div class="score-verdict"><div class="sv-title" id="sv-title">✅ Produit gagnant</div><div class="sv-text" id="sv-text">21.9K vendus en 30 jours, prix flash -60%, format compact et polyvalent. Fort potentiel de conversion.</div></div>
+      </div>
+      <div class="sec-title" style="margin:0 0 12px" id="angle-title">🎯 Choisis ton angle</div>
+      <div class="angle-card sel" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">😮</span><span class="ac-type" id="ang1">Curiosité</span></div><div class="ac-hook">"Attends… ce truc rose remplace 3 produits de maquillage ?!"</div></div>
+      <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">🤯</span><span class="ac-type" id="ang2">Surprise</span></div><div class="ac-hook">"J'ai testé ça à la place de mon blush à 400k — choquée"</div></div>
+      <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">💸</span><span class="ac-type" id="ang3">Valeur</span></div><div class="ac-hook">"-60% aujourd'hui, 21.000 filles l'ont déjà acheté ce mois"</div></div>
+      <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">🔥</span><span class="ac-type" id="ang4">FOMO</span></div><div class="ac-hook">"Flash sale qui se termine dans 18h — après c'est fini"</div></div>
+      <div class="angle-card" onclick="selAngle(this)"><div class="ac-top"><span class="ac-icon">✨</span><span class="ac-type" id="ang5">Transformation</span></div><div class="ac-hook">"10 secondes pour un look naturel — avant/après bluffant"</div></div>
+      <button class="btn-full btn-grad mt16" id="btn-gen-script" onclick="go('s-script')">🎬 Générer le script →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ⑦ SCRIPT -->
+<div class="screen" id="s-script">
+  <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3 id="hdr-script">🎬 Créer un script</h3></div>
+  <div class="script-body">
+    <div class="s-field"><label id="lbl-prod">Nom du produit *</label><input type="text" placeholder="Ex: Blush stick Kabeina"></div>
+    <div class="s-field"><label id="lbl-type">Type *</label><input type="text" placeholder="Ex: maquillage, vêtement..."></div>
+    <div class="s-field"><label id="lbl-pts">Points forts</label><input type="text" placeholder="Ex: 3-en-1, flash sale, best-seller..."></div>
+    <div class="s-field"><label id="lbl-price2">Prix</label><input type="text" placeholder="Ex: 79.000đ"></div>
+    <div class="s-field"><label id="lbl-tone">Ton de communication</label>
+      <div class="tone-row">
+        <div class="tone-btn sel" onclick="selTone(this)" id="tone1">😂 Humour</div>
+        <div class="tone-btn" onclick="selTone(this)" id="tone2">🌸 Lifestyle</div>
+        <div class="tone-btn" onclick="selTone(this)" id="tone3">💎 Élégant</div>
+        <div class="tone-btn" onclick="selTone(this)" id="tone4">🔥 Punchy</div>
+      </div>
+    </div>
+    <button class="btn-full btn-grad" id="btn-gen" onclick="showScript()">✨ Générer mon script</button>
+    <div id="script-result" style="display:none;margin-top:16px">
+      <div class="result-block rb-hook"><div class="rb-lbl" style="color:var(--pink)" id="rb-hook-lbl">🎣 Hook — 3 premières secondes</div><div class="rb-txt">Attends… ce truc rose remplace MON blush, mon fard ET mon rouge à lèvres ?! 😱</div></div>
+      <div class="result-block rb-body"><div class="rb-lbl" style="color:#ce93d8" id="rb-body-lbl">📝 Body</div><div class="rb-txt">Le Blush Stick Kabeina c'est 3-en-1 — yeux, lèvres, joues. Texture mousse ultra douce. 21.000 filles l'ont déjà acheté 🔥 Et là il est à -60% soit 79k !</div></div>
+      <div class="result-block rb-cta"><div class="rb-lbl" style="color:#81c784" id="rb-cta-lbl">🛍️ CTA</div><div class="rb-txt">Lien dans la vidéo — flash sale bientôt terminé, fonce ! 💨</div></div>
+      <div class="result-block rb-cap"><div class="rb-lbl" style="color:#ffb74d" id="rb-cap-lbl">📱 Caption</div><div class="rb-txt">Ce stick rose qui remplace 3 produits... 😳 #blush #makeupvietnam</div></div>
+      <div class="result-block rb-hash"><div class="rb-lbl" style="color:var(--cyan)" id="rb-hash-lbl">#️⃣ Hashtags</div><div class="rb-txt">#makeupvietnam #blushstick #trangdiem #tiktokvietnam #beautyreview #flashsale</div></div>
+      <div class="btn-row">
+        <button class="btn-copy" id="btn-copy-script" onclick="this.textContent='✅ Copié!'">📋 Copier</button>
+        <button class="btn-save" id="btn-save-script">💾 Sauver</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑧ IDÉES -->
+<div class="screen" id="s-ideas">
+  <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3 id="hdr-ideas">💡 Idées de vidéos</h3></div>
+  <div class="ideas-body">
+    <div class="s-field"><label id="lbl-ctx">Contexte / Thème</label><input type="text" placeholder="Ex: makeup, été, back to school..."></div>
+    <button class="btn-full btn-grad" id="btn-ideas" style="margin-bottom:16px">✨ Générer 7 idées</button>
+    <div class="idea-item"><div class="idea-num">1</div><div><div class="idea-t">Le produit qu'elles utilisent toutes sans le dire 👀</div><div class="idea-h">"Ce blush je l'ai vu sur 10 créatrices différentes cette semaine…"</div><span class="idea-tag">Curiosité</span></div></div>
+    <div class="idea-item"><div class="idea-num">2</div><div><div class="idea-t">Test honnête — je le garde ou je le rends ?</div><div class="idea-h">"Je vous dis vraiment ce que j'en pense après 1 semaine"</div><span class="idea-tag">Review</span></div></div>
+    <div class="idea-item"><div class="idea-num">3</div><div><div class="idea-t">Routine makeup 5 min chrono ⏱️</div><div class="idea-h">"Avec ce seul produit, mon look est fait en 5 minutes top"</div><span class="idea-tag">Tuto</span></div></div>
+    <div class="idea-item"><div class="idea-num">4</div><div><div class="idea-t">Ce que j'aurais voulu savoir avant d'acheter</div><div class="idea-h">"Honnêtement les vrais + et les vrais - de ce produit"</div><span class="idea-tag">Honnête</span></div></div>
+    <div class="idea-item"><div class="idea-num">5</div><div><div class="idea-t">Dupe de luxe à 79k 💸</div><div class="idea-h">"Ce stick fait exactement la même chose que mon produit à 400k"</div><span class="idea-tag">Valeur</span></div></div>
+    <div class="idea-item"><div class="idea-num">6</div><div><div class="idea-t">POV : tu découvres ce produit pour la 1ère fois</div><div class="idea-h">"Ma réaction authentique en déballant le produit que tout le monde s'arrache"</div><span class="idea-tag">Unboxing</span></div></div>
+    <div class="idea-item"><div class="idea-num">7</div><div><div class="idea-t">Avant / après en 10 secondes ✨</div><div class="idea-h">"Résultat bluffant — regardez bien la différence"</div><span class="idea-tag">Transformation</span></div></div>
+  </div>
+</div>
+
+<!-- ⑨ TENDANCES -->
+<div class="screen" id="s-trends">
+  <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3 id="hdr-trends">📈 Tendances Vietnam</h3></div>
+  <div class="trends-body">
+    <div class="trend-section">
+      <div class="ts-title" id="ts1">🔥 Hashtags chauds cette semaine</div>
+      <div class="trend-item"><div class="ti-rank">#1</div><div class="ti-info"><div class="ti-name">#thoitrangnu2025</div><div class="ti-meta">12.4M vues · Mode femme</div></div><div class="ti-badge badge-hot">🔥 HOT</div></div>
+      <div class="trend-item"><div class="ti-rank">#2</div><div class="ti-info"><div class="ti-name">#makeupvietnam</div><div class="ti-meta">8.7M vues · Beauté</div></div><div class="ti-badge badge-hot">🔥 HOT</div></div>
+      <div class="trend-item"><div class="ti-rank">#3</div><div class="ti-info"><div class="ti-name">#outfitoftheday</div><div class="ti-meta">6.1M vues · Lifestyle</div></div><div class="ti-badge badge-new">↑ NEW</div></div>
+      <div class="trend-item"><div class="ti-rank">#4</div><div class="ti-info"><div class="ti-name">#skincareroutine</div><div class="ti-meta">4.8M vues · Beauté</div></div><div class="ti-badge badge-up">📈 UP</div></div>
+    </div>
+    <div class="trend-section">
+      <div class="ts-title" id="ts2">🎵 Sons qui buzzent</div>
+      <div class="sound-item"><div class="si-icon">🎵</div><div><div class="si-name">Espresso — Sabrina Carpenter</div><div class="si-meta">2.1M vidéos · Lifestyle & OOTD</div></div></div>
+      <div class="sound-item"><div class="si-icon">🎵</div><div><div class="si-name">Son trending VN #1</div><div class="si-meta">890K vidéos · Makeup & beauty</div></div></div>
+      <div class="sound-item"><div class="si-icon">🎵</div><div><div class="si-name">APT. — Rose & Bruno Mars</div><div class="si-meta">650K vidéos · Fashion</div></div></div>
+    </div>
+    <div class="trend-section">
+      <div class="ts-title" id="ts3">🏆 Produits qui buzzent</div>
+      <div class="trend-item"><div class="ti-rank">①</div><div class="ti-info"><div class="ti-name">Blush stick 3-en-1</div><div class="ti-meta">21.9K vendus en 30j · Beauté</div></div><div class="ti-badge badge-hot">🔥</div></div>
+      <div class="trend-item"><div class="ti-rank">②</div><div class="ti-info"><div class="ti-name">Váy linen tay bồng</div><div class="ti-meta">15.2K vendus en 30j · Mode</div></div><div class="ti-badge badge-hot">🔥</div></div>
+      <div class="trend-item"><div class="ti-rank">③</div><div class="ti-info"><div class="ti-name">Serum vitamin C local</div><div class="ti-meta">9.8K vendus en 30j · Skincare</div></div><div class="ti-badge badge-new">↑</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑩ CALENDRIER -->
+<div class="screen" id="s-cal">
+  <div class="screen-hdr"><button class="back-btn" onclick="go('s-home')">←</button><h3 id="hdr-cal">🗓️ Calendrier</h3></div>
+  <div class="cal-body">
+    <div class="cal-week">
+      <div class="cal-day"><div class="cd-name" id="day1">Lun</div><div class="cd-num has">21</div><div class="cd-dot"></div></div>
+      <div class="cal-day"><div class="cd-name" id="day2">Mar</div><div class="cd-num has">22</div><div class="cd-dot"></div></div>
+      <div class="cal-day"><div class="cd-name" id="day3">Mer</div><div class="cd-num today">23</div><div class="cd-dot"></div></div>
+      <div class="cal-day"><div class="cd-name" id="day4">Jeu</div><div class="cd-num has">24</div><div class="cd-dot"></div></div>
+      <div class="cal-day"><div class="cd-name" id="day5">Ven</div><div class="cd-num">25</div></div>
+      <div class="cal-day"><div class="cd-name" id="day6">Sam</div><div class="cd-num">26</div></div>
+      <div class="cal-day"><div class="cd-name" id="day7">Dim</div><div class="cd-num">27</div></div>
+    </div>
+    <div class="post-item"><div class="pi-day" id="pi1-day">Lundi 21</div><div class="pi-title">Test honnête — Blush Kabeina</div><div class="pi-hook">"Je vous dis vraiment ce que je pense après 1 semaine"</div><span class="pi-status st-done" id="st-done">✅ Posté</span></div>
+    <div class="post-item"><div class="pi-day">Mardi 22</div><div class="pi-title">Dupe luxe à 79k 💸</div><div class="pi-hook">"Même résultat que mon produit à 400k"</div><span class="pi-status st-done">✅ Posté</span></div>
+    <div class="post-item" style="border-left-color:#ff9800"><div class="pi-day" id="pi-today">Aujourd'hui · Mercredi 23</div><div class="pi-title">Routine makeup 5 min ⏱️</div><div class="pi-hook">"Un seul produit, look fait en 5 minutes top"</div><span class="pi-status st-plan" id="st-plan">📝 À filmer</span></div>
+    <div class="post-item" style="border-left-color:var(--cyan)"><div class="pi-day">Jeudi 24</div><div class="pi-title">Avant / Après ✨</div><div class="pi-hook">"Résultat bluffant — regardez bien"</div><span class="pi-status st-idea" id="st-idea">💡 Idée</span></div>
+    <button class="btn-full btn-grad mt16" id="btn-add-post" onclick="go('s-script')">+ Ajouter un post</button>
+  </div>
+</div>
+
+<!-- ⑪ SETTINGS -->
+<div class="screen" id="s-settings">
+  <div class="screen-hdr"><h3 id="hdr-settings">⚙️ Réglages</h3></div>
+  <div class="settings-body">
+    <div class="profile-card">
+      <div class="avatar">👗</div>
+      <div><div class="p-name">Hanni</div><div class="p-sub">@banimet6 · TikTok Shop</div><div class="p-badge">✨ Plan Pro — 99k/mois</div></div>
+    </div>
+    <div class="sg">
+      <div class="sg-title" id="sg-lang">🌐 Langue</div>
+      <div class="lang-btns">
+        <div class="lb-btn" onclick="setLangBtn(this,'vi')">🇻🇳 Việt</div>
+        <div class="lb-btn active" onclick="setLangBtn(this,'fr')">🇫🇷 Français</div>
+        <div class="lb-btn" onclick="setLangBtn(this,'en')">🇬🇧 English</div>
+      </div>
+    </div>
+    <div class="sg">
+      <div class="sg-title" id="sg-account">👤 Mon compte</div>
+      <div class="sg-item"><div class="sg-icon">📱</div><div class="sg-lbl" id="sg-tiktok">Compte TikTok</div><div class="sg-val">@banimet6</div><div class="sg-arr">›</div></div>
+      <div class="sg-item"><div class="sg-icon">💳</div><div class="sg-lbl" id="sg-sub">Mon abonnement</div><div class="sg-val">Pro · 99k/mois</div><div class="sg-arr">›</div></div>
+      <div class="sg-item"><div class="sg-icon">🔔</div><div class="sg-lbl" id="sg-notif">Notifications</div><div class="sg-val" id="sg-notif-val">Activées</div><div class="sg-arr">›</div></div>
+    </div>
+    <div class="sg">
+      <div class="sg-title" id="sg-app">ℹ️ Application</div>
+      <div class="sg-item"><div class="sg-icon">⭐</div><div class="sg-lbl" id="sg-rate">Noter FlowTok</div><div class="sg-arr">›</div></div>
+      <div class="sg-item"><div class="sg-icon">💬</div><div class="sg-lbl" id="sg-contact">Nous contacter</div><div class="sg-arr">›</div></div>
+      <div class="sg-item" onclick="go('s-lang')"><div class="sg-icon">🚪</div><div class="sg-lbl" id="sg-logout">Se déconnecter</div><div class="sg-arr">›</div></div>
+    </div>
+  </div>
+  <div class="bnav">
+    <div class="nav-i" onclick="goNav('s-home',this)"><div class="nav-icon">🏠</div><div class="nav-lbl">Accueil</div></div>
+    <div class="nav-i" onclick="goNav('s-analyse',this)"><div class="nav-icon">🏆</div><div class="nav-lbl">Analyser</div></div>
+    <div class="nav-i" onclick="goNav('s-script',this)"><div class="nav-icon">🎬</div><div class="nav-lbl">Script</div></div>
+    <div class="nav-i" onclick="goNav('s-trends',this)"><div class="nav-icon">📈</div><div class="nav-lbl">Tendances</div></div>
+    <div class="nav-i active" onclick="goNav('s-settings',this)"><div class="nav-icon">⚙️</div><div class="nav-lbl" id="nl-settings2">Réglages</div><div class="nav-dot"></div></div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ── SUPABASE ──
+const SUPA_URL = 'https://ksrgzdzggpurnffzvray.supabase.co';
+const SUPA_KEY = 'sb_publishable_NXrWETcrLI3cUJEO2wJEGA_DXmtWW7R';
+const sb = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+// Auth listeners
+sb.auth.onAuthStateChange((event, session) => {
+  if (session) {
+    // Utilisateur connecté
+    const email = session.user.email;
+    document.querySelectorAll('.p-name').forEach(el => el.textContent = email.split('@')[0]);
+  }
+});
+
+async function signIn() {
+  const email = document.querySelector('#s-login input[type=email]').value;
+  const pw    = document.querySelector('#s-login input[type=password]').value;
+  if (!email || !pw) { alert('Remplis email et mot de passe 🙏'); return; }
+  const btn = document.getElementById('btn-login');
+  btn.textContent = '⏳ Connexion...'; btn.disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+  btn.disabled = false;
+  if (error) { btn.textContent = T[lang].btnLogin; alert('Erreur : ' + error.message); }
+  else { btn.textContent = T[lang].btnLogin; go('s-home'); }
+}
+
+async function signUp() {
+  const name  = document.querySelector('#s-register input[type=text]').value;
+  const email = document.querySelector('#s-register input[type=email]').value;
+  const pw    = document.querySelector('#s-register input[type=password]').value;
+  if (!email || !pw) { alert('Remplis tous les champs 🙏'); return; }
+  const btn = document.getElementById('btn-register');
+  btn.textContent = '⏳ Création...'; btn.disabled = true;
+  const { error } = await sb.auth.signUp({ email, password: pw, options: { data: { name } } });
+  btn.disabled = false;
+  if (error) { btn.textContent = T[lang].btnRegister; alert('Erreur : ' + error.message); }
+  else { btn.textContent = T[lang].btnRegister; go('s-onboard'); }
+}
+
+async function signOut() {
+  await sb.auth.signOut();
+  go('s-lang');
+}
+
+let lang='fr';
+const T={
+  fr:{lsCta:'Commencer gratuitement →',lsHint:'Choisissez votre langue',atTitle:'Bon retour 👋',atSub:'Connecte-toi pour accéder à tes scripts.',lblEmail:'Email',lblPw:'Mot de passe',lblForgot:'Mot de passe oublié ?',btnLogin:'Se connecter',lblOr:'OU',lblNoAccount:'Pas encore de compte ?',swReg:'Créer un compte',regTitle:'Créer un compte 🚀',regSub:'Rejoins des milliers de créatrices TikTok Shop.',lblName:'Prénom',lblTiktok:'TikTok @',lblPw2:'Mot de passe',lblEmail2:'Email',btnRegister:'Créer mon compte →',lblHaveAccount:'Déjà un compte ?',swLogin:'Se connecter',obStep:'Étape 1/2 — Ton profil',obTitle:'Ce que tu vends 🛍️',obSub:'Dis-nous tes catégories pour des scripts parfaitement adaptés.',obTitle2:'Ton style de contenu 🎬',btnStart:'Commencer ! 🚀',hHello:'Bonjour 👋',hDo:'Que veux-tu faire ?',sl1:'Scripts créés',sl2:'Cette semaine',sl3:'Jours actifs',qcA:'Analyser produit',qcsA:'Score + angles gagnants',qcS:'Créer script',qcsS:'Prêt en 30 secondes',qcI:'Idées vidéo',qcsI:'7 idées générées',qcC:'Calendrier',qcsC:'Plan de la semaine',qcTr:'Tendances Vietnam',qcsTr:'Sons & hashtags du moment',hTrends:'🔥 Top tendances',nlHome:'Accueil',nlAnalyse:'Analyser',nlScript:'Script',nlTrends:'Tendances',nlSettings:'Réglages',hdrAnalyse:'🏆 Analyser un produit',lblDesc:'Description du vendeur',lblPrix:'Prix',btnAnalyse:'🔍 Analyser ce produit',uzTitle:'Upload les photos produit',uzSub:'Photos envoyées par le vendeur',scoreTitle:'Score produit',sb1:'Wow factor',sb2:'Prix attractif',sb3:'Signaux de vente',sb4:'Potentiel viral',svTitle:'✅ Produit gagnant',svText:'21.9K vendus en 30 jours, -60%, format polyvalent. Fort potentiel.',angleTitle:'🎯 Choisis ton angle',ang1:'Curiosité',ang2:'Surprise',ang3:'Valeur',ang4:'FOMO',ang5:'Transformation',btnGenScript:'🎬 Générer le script →',hdrScript:'🎬 Créer un script',lblProd:'Nom du produit *',lblType:'Type *',lblPts:'Points forts',lblPrice2:'Prix',lblTone:'Ton de communication',tone1:'😂 Humour',tone2:'🌸 Lifestyle',tone3:'💎 Élégant',tone4:'🔥 Punchy',btnGen:'✨ Générer mon script',rbHook:'🎣 Hook — 3 premières secondes',rbBody:'📝 Body',rbCta:'🛍️ CTA',rbCap:'📱 Caption',rbHash:'#️⃣ Hashtags',btnCopy:'📋 Copier',btnSave:'💾 Sauver',hdrIdeas:'💡 Idées de vidéos',lblCtx:'Contexte / Thème',btnIdeas:'✨ Générer 7 idées',hdrTrends:'📈 Tendances Vietnam',ts1:'🔥 Hashtags chauds cette semaine',ts2:'🎵 Sons qui buzzent',ts3:'🏆 Produits qui buzzent',hdrCal:'🗓️ Calendrier',day1:'Lun',day2:'Mar',day3:'Mer',day4:'Jeu',day5:'Ven',day6:'Sam',day7:'Dim',stDone:'✅ Posté',stPlan:'📝 À filmer',stIdea:'💡 Idée',btnAddPost:'+ Ajouter un post',hdrSettings:'⚙️ Réglages',sgLang:'🌐 Langue',sgAccount:'👤 Mon compte',sgTiktok:'Compte TikTok',sgSub:'Mon abonnement',sgNotif:'Notifications',sgNotifVal:'Activées',sgApp:'ℹ️ Application',sgRate:'Noter FlowTok',sgContact:'Nous contacter',sgLogout:'Se déconnecter'},
+  vi:{lsCta:'Bắt đầu miễn phí →',lsHint:'Chọn ngôn ngữ của bạn',atTitle:'Chào mừng trở lại 👋',atSub:'Đăng nhập để xem script và xu hướng của bạn.',lblEmail:'Email',lblPw:'Mật khẩu',lblForgot:'Quên mật khẩu?',btnLogin:'Đăng nhập',lblOr:'HOẶC',lblNoAccount:'Chưa có tài khoản?',swReg:'Tạo tài khoản',regTitle:'Tạo tài khoản 🚀',regSub:'Tham gia cùng hàng ngàn người bán TikTok Shop.',lblName:'Tên',lblTiktok:'TikTok @',lblPw2:'Mật khẩu',lblEmail2:'Email',btnRegister:'Tạo tài khoản →',lblHaveAccount:'Đã có tài khoản?',swLogin:'Đăng nhập',obStep:'Bước 1/2 — Hồ sơ của bạn',obTitle:'Bạn bán gì 🛍️',obSub:'Cho chúng tôi biết danh mục để tạo script phù hợp nhất.',obTitle2:'Phong cách nội dung 🎬',btnStart:'Bắt đầu ! 🚀',hHello:'Xin chào 👋',hDo:'Bạn muốn làm gì?',sl1:'Script đã tạo',sl2:'Tuần này',sl3:'Ngày hoạt động',qcA:'Phân tích sản phẩm',qcsA:'Điểm số + góc độ thắng',qcS:'Tạo script',qcsS:'Xong trong 30 giây',qcI:'Ý tưởng video',qcsI:'7 ý tưởng được tạo',qcC:'Lịch nội dung',qcsC:'Kế hoạch tuần này',qcTr:'Xu hướng Việt Nam',qcsTr:'Âm thanh & hashtag hot',hTrends:'🔥 Xu hướng hot',nlHome:'Trang chủ',nlAnalyse:'Phân tích',nlScript:'Script',nlTrends:'Xu hướng',nlSettings:'Cài đặt',hdrAnalyse:'🏆 Phân tích sản phẩm',lblDesc:'Mô tả từ người bán',lblPrix:'Giá',btnAnalyse:'🔍 Phân tích sản phẩm này',uzTitle:'Upload ảnh sản phẩm',uzSub:'Ảnh do người bán gửi',scoreTitle:'Điểm sản phẩm',sb1:'Wow factor',sb2:'Giá hấp dẫn',sb3:'Tín hiệu bán hàng',sb4:'Tiềm năng viral',svTitle:'✅ Sản phẩm tiềm năng',svText:'21.9K đã bán trong 30 ngày, giảm giá 60%, định dạng đa năng.',angleTitle:'🎯 Chọn góc độ của bạn',ang1:'Tò mò',ang2:'Bất ngờ',ang3:'Giá trị',ang4:'FOMO',ang5:'Biến đổi',btnGenScript:'🎬 Tạo script →',hdrScript:'🎬 Tạo script',lblProd:'Tên sản phẩm *',lblType:'Loại *',lblPts:'Điểm nổi bật',lblPrice2:'Giá',lblTone:'Phong cách giao tiếp',tone1:'😂 Hài hước',tone2:'🌸 Lifestyle',tone3:'💎 Sang trọng',tone4:'🔥 Mạnh mẽ',btnGen:'✨ Tạo script của tôi',rbHook:'🎣 Hook — 3 giây đầu',rbBody:'📝 Nội dung',rbCta:'🛍️ CTA',rbCap:'📱 Caption',rbHash:'#️⃣ Hashtags',btnCopy:'📋 Sao chép',btnSave:'💾 Lưu',hdrIdeas:'💡 Ý tưởng video',lblCtx:'Chủ đề / Bối cảnh',btnIdeas:'✨ Tạo 7 ý tưởng',hdrTrends:'📈 Xu hướng Việt Nam',ts1:'🔥 Hashtag hot tuần này',ts2:'🎵 Âm thanh đang viral',ts3:'🏆 Sản phẩm đang hot',hdrCal:'🗓️ Lịch nội dung',day1:'T2',day2:'T3',day3:'T4',day4:'T5',day5:'T6',day6:'T7',day7:'CN',stDone:'✅ Đã đăng',stPlan:'📝 Cần quay',stIdea:'💡 Ý tưởng',btnAddPost:'+ Thêm bài đăng',hdrSettings:'⚙️ Cài đặt',sgLang:'🌐 Ngôn ngữ',sgAccount:'👤 Tài khoản của tôi',sgTiktok:'Tài khoản TikTok',sgSub:'Gói đăng ký',sgNotif:'Thông báo',sgNotifVal:'Đã bật',sgApp:'ℹ️ Ứng dụng',sgRate:'Đánh giá FlowTok',sgContact:'Liên hệ chúng tôi',sgLogout:'Đăng xuất'},
+  en:{lsCta:'Start for free →',lsHint:'Choose your language',atTitle:'Welcome back 👋',atSub:'Sign in to access your scripts and trends.',lblEmail:'Email',lblPw:'Password',lblForgot:'Forgot password?',btnLogin:'Sign in',lblOr:'OR',lblNoAccount:"Don't have an account?",swReg:'Create account',regTitle:'Create account 🚀',regSub:'Join thousands of TikTok Shop creators.',lblName:'First name',lblTiktok:'TikTok @',lblPw2:'Password',lblEmail2:'Email',btnRegister:'Create my account →',lblHaveAccount:'Already have an account?',swLogin:'Sign in',obStep:'Step 1/2 — Your profile',obTitle:'What you sell 🛍️',obSub:'Tell us your categories so FlowTok generates perfectly adapted scripts.',obTitle2:'Your content style 🎬',btnStart:"Let's go ! 🚀",hHello:'Hello 👋',hDo:'What do you want to do?',sl1:'Scripts created',sl2:'This week',sl3:'Active days',qcA:'Analyze product',qcsA:'Score + winning angles',qcS:'Create script',qcsS:'Ready in 30 seconds',qcI:'Video ideas',qcsI:'7 ideas generated',qcC:'Calendar',qcsC:'Week plan',qcTr:'Vietnam Trends',qcsTr:'Hot sounds & hashtags',hTrends:'🔥 Top trends',nlHome:'Home',nlAnalyse:'Analyze',nlScript:'Script',nlTrends:'Trends',nlSettings:'Settings',hdrAnalyse:'🏆 Analyze a product',lblDesc:'Seller description',lblPrix:'Price',btnAnalyse:'🔍 Analyze this product',uzTitle:'Upload product photos',uzSub:'Photos sent by the seller',scoreTitle:'Product score',sb1:'Wow factor',sb2:'Attractive price',sb3:'Sales signals',sb4:'Viral potential',svTitle:'✅ Winning product',svText:'21.9K sold in 30 days, -60% flash sale, versatile. High conversion potential.',angleTitle:'🎯 Choose your angle',ang1:'Curiosity',ang2:'Surprise',ang3:'Value',ang4:'FOMO',ang5:'Transformation',btnGenScript:'🎬 Generate script →',hdrScript:'🎬 Create a script',lblProd:'Product name *',lblType:'Type *',lblPts:'Key points',lblPrice2:'Price',lblTone:'Communication tone',tone1:'😂 Humor',tone2:'🌸 Lifestyle',tone3:'💎 Elegant',tone4:'🔥 Punchy',btnGen:'✨ Generate my script',rbHook:'🎣 Hook — first 3 seconds',rbBody:'📝 Body',rbCta:'🛍️ CTA',rbCap:'📱 Caption',rbHash:'#️⃣ Hashtags',btnCopy:'📋 Copy',btnSave:'💾 Save',hdrIdeas:'💡 Video ideas',lblCtx:'Context / Theme',btnIdeas:'✨ Generate 7 ideas',hdrTrends:'📈 Vietnam Trends',ts1:'🔥 Hot hashtags this week',ts2:'🎵 Trending sounds',ts3:'🏆 Trending products',hdrCal:'🗓️ Content Calendar',day1:'Mon',day2:'Tue',day3:'Wed',day4:'Thu',day5:'Fri',day6:'Sat',day7:'Sun',stDone:'✅ Posted',stPlan:'📝 To film',stIdea:'💡 Idea',btnAddPost:'+ Add a post',hdrSettings:'⚙️ Settings',sgLang:'🌐 Language',sgAccount:'👤 My account',sgTiktok:'TikTok account',sgSub:'My subscription',sgNotif:'Notifications',sgNotifVal:'Enabled',sgApp:'ℹ️ App',sgRate:'Rate FlowTok',sgContact:'Contact us',sgLogout:'Sign out'}
+};
+
+const MAP={lsCta:'ls-cta',lsHint:'ls-hint',atTitle:'at-title',atSub:'at-sub',lblEmail:'lbl-email',lblPw:'lbl-pw',lblForgot:'lbl-forgot',btnLogin:'btn-login',lblOr:'lbl-or',lblNoAccount:'lbl-no-account',swReg:'sw-reg',regTitle:'reg-title',regSub:'reg-sub',lblName:'lbl-name',lblTiktok:'lbl-tiktok',lblPw2:'lbl-pw2',lblEmail2:'lbl-email2',btnRegister:'btn-register',lblHaveAccount:'lbl-have-account',swLogin:'sw-login',obStep:'ob-step',obTitle:'ob-title',obSub:'ob-sub',obTitle2:'ob-title2',btnStart:'btn-start',hHello:'h-hello',hDo:'h-do',sl1:'sl1',sl2:'sl2',sl3:'sl3',qcA:'qc-a',qcsA:'qcs-a',qcS:'qc-s',qcsS:'qcs-s',qcI:'qc-i',qcsI:'qcs-i',qcC:'qc-c',qcsC:'qcs-c',qcTr:'qc-tr',qcsTr:'qcs-tr',hTrends:'h-trends',nlHome:'nl-home',nlAnalyse:'nl-analyse',nlScript:'nl-script',nlTrends:'nl-trends',nlSettings:'nl-settings',hdrAnalyse:'hdr-analyse',lblDesc:'lbl-desc',lblPrix:'lbl-prix',btnAnalyse:'btn-analyse',uzTitle:'uz-title',uzSub:'uz-sub',scoreTitle:'score-title',sb1:'sb1',sb2:'sb2',sb3:'sb3',sb4:'sb4',svTitle:'sv-title',svText:'sv-text',angleTitle:'angle-title',ang1:'ang1',ang2:'ang2',ang3:'ang3',ang4:'ang4',ang5:'ang5',btnGenScript:'btn-gen-script',hdrScript:'hdr-script',lblProd:'lbl-prod',lblType:'lbl-type',lblPts:'lbl-pts',lblPrice2:'lbl-price2',lblTone:'lbl-tone',tone1:'tone1',tone2:'tone2',tone3:'tone3',tone4:'tone4',btnGen:'btn-gen',rbHook:'rb-hook-lbl',rbBody:'rb-body-lbl',rbCta:'rb-cta-lbl',rbCap:'rb-cap-lbl',rbHash:'rb-hash-lbl',btnCopy:'btn-copy-script',btnSave:'btn-save-script',hdrIdeas:'hdr-ideas',lblCtx:'lbl-ctx',btnIdeas:'btn-ideas',hdrTrends:'hdr-trends',ts1:'ts1',ts2:'ts2',ts3:'ts3',hdrCal:'hdr-cal',day1:'day1',day2:'day2',day3:'day3',day4:'day4',day5:'day5',day6:'day6',day7:'day7',stDone:'st-done',stPlan:'st-plan',stIdea:'st-idea',btnAddPost:'btn-add-post',hdrSettings:'hdr-settings',sgLang:'sg-lang',sgAccount:'sg-account',sgTiktok:'sg-tiktok',sgSub:'sg-sub',sgNotif:'sg-notif',sgNotifVal:'sg-notif-val',sgApp:'sg-app',sgRate:'sg-rate',sgContact:'sg-contact',sgLogout:'sg-logout'};
+
+function applyLang(l){
+  lang=l;const t=T[l];
+  Object.keys(MAP).forEach(k=>{const el=document.getElementById(MAP[k]);if(el&&t[k])el.textContent=t[k];});
+  const flags={vi:'🇻🇳',fr:'🇫🇷',en:'🇬🇧'};
+  document.querySelectorAll('.tl-btn').forEach(b=>b.classList.toggle('active',b.textContent.includes(flags[l])));
+  document.querySelectorAll('.lb-btn').forEach(b=>b.classList.toggle('active',b.textContent.includes(flags[l])));
+}
+function pickLang(l,el){document.querySelectorAll('.ls-item').forEach(i=>i.classList.remove('sel'));el.classList.add('sel');applyLang(l);}
+function setLang(l,el){document.querySelectorAll('.tl-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');applyLang(l);}
+function setLangBtn(el,l){document.querySelectorAll('.lb-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');applyLang(l);}
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const noTop=['s-lang','s-login','s-register','s-onboard'];
+  document.getElementById('topbar').style.display=noTop.includes(id)?'none':'flex';
+  document.getElementById('app').scrollTop=0;
+}
+function goNav(id,el){
+  go(id);
+  document.querySelectorAll('.nav-i').forEach(n=>{n.classList.remove('active');const d=n.querySelector('.nav-dot');if(d)d.remove();});
+  el.classList.add('active');
+  const dot=document.createElement('div');dot.className='nav-dot';el.appendChild(dot);
+}
+function tog(el){el.classList.toggle('sel');}
+function togSingle(el,cls){document.querySelectorAll(cls).forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function selTone(el){document.querySelectorAll('.tone-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');}
+function selAngle(el){document.querySelectorAll('.angle-card').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');}
+function simulateUpload(){document.getElementById('uz-icon').textContent='✅';document.getElementById('uz-title').textContent='4 photos chargées';document.getElementById('preview-imgs').style.display='flex';}
+function showScore(){document.getElementById('score-result').style.display='block';setTimeout(()=>document.getElementById('score-result').scrollIntoView({behavior:'smooth'}),100);}
+function showScript(){document.getElementById('script-result').style.display='block';setTimeout(()=>document.getElementById('script-result').scrollIntoView({behavior:'smooth'}),100);}
+</script>
+</body>
+</html>
