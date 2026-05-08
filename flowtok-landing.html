@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="FlowTok — Nền tảng phân tích TikTok Shop thông minh cho nhà sáng tạo và người bán hàng">
+<title>FlowTok — TikTok Shop Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#fe2c55;--cyan:#00f2ea;--dark:#0a0a0f;--card:#0f0f18;--border:rgba(255,255,255,.08);--muted:rgba(255,255,255,.4);--text:#fff}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(10,10,15,.85);backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border)}
+.nav-logo{font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.nav-logo span{color:var(--pink)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-link{font-size:13px;color:var(--muted);cursor:pointer;transition:color .2s;text-decoration:none}
+.nav-link:hover{color:var(--text)}
+.nav-btns{display:flex;gap:10px}
+.btn-ghost{padding:8px 18px;border:0.5px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;background:transparent;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-ghost:hover{background:rgba(255,255,255,.06)}
+.btn-primary{padding:8px 18px;border:none;border-radius:8px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;background:var(--pink);font-family:'Inter',sans-serif;transition:all .2s}
+.btn-primary:hover{opacity:.9}
+.lang-sel{display:flex;gap:4px;background:rgba(255,255,255,.05);border:0.5px solid var(--border);border-radius:8px;padding:3px}
+.lang-btn{padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;color:var(--muted);transition:all .2s;border:none;background:transparent;font-family:'Inter',sans-serif}
+.lang-btn.active{background:var(--pink);color:#fff}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(254,44,85,.15),transparent);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(254,44,85,.1);border:0.5px solid rgba(254,44,85,.3);border-radius:20px;padding:6px 14px;font-size:12px;font-weight:600;color:var(--pink);margin-bottom:28px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1{font-size:clamp(36px,6vw,72px);font-weight:900;line-height:1.05;letter-spacing:-2px;margin-bottom:20px;max-width:800px}
+.hero h1 .accent{color:var(--pink)}
+.hero p{font-size:clamp(15px,2vw,18px);color:var(--muted);max-width:560px;line-height:1.7;margin-bottom:48px}
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:60px}
+.cta-creator{display:flex;align-items:center;gap:10px;padding:16px 28px;background:var(--pink);border:none;border-radius:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.cta-creator:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(254,44,85,.35)}
+.cta-seller{display:flex;align-items:center;gap:10px;padding:16px 28px;background:rgba(255,255,255,.06);border:0.5px solid var(--border);border-radius:12px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.cta-seller:hover{transform:translateY(-2px);background:rgba(255,255,255,.1)}
+.cta-icon{font-size:20px}
+.cta-sub{font-size:11px;font-weight:400;opacity:.7;display:block;margin-top:2px}
+.hero-stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-num{font-size:28px;font-weight:800;color:var(--pink)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* MOCKUP */
+.mockup-section{padding:80px 40px;display:flex;justify-content:center}
+.mockup-wrap{position:relative;max-width:900px;width:100%}
+.mockup-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(254,44,85,.12),transparent);pointer-events:none}
+.mockup-screen{background:var(--card);border:0.5px solid var(--border);border-radius:16px;overflow:hidden;position:relative;z-index:1}
+.mockup-bar{background:rgba(255,255,255,.03);border-bottom:0.5px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:8px}
+.mockup-dots{display:flex;gap:5px}
+.mockup-dot{width:10px;height:10px;border-radius:50%}
+.mockup-url{flex:1;background:rgba(255,255,255,.05);border-radius:5px;padding:4px 10px;font-size:11px;color:var(--muted);text-align:center}
+.mockup-body{display:flex;height:340px}
+.m-sidebar{width:160px;background:rgba(0,0,0,.3);border-right:0.5px solid var(--border);padding:14px 0}
+.m-logo{padding:0 14px 16px;font-size:13px;font-weight:800}
+.m-logo span{color:var(--pink)}
+.m-nav{padding:7px 14px;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.m-nav.active{color:var(--text);background:rgba(254,44,85,.08)}
+.m-nav i{font-size:13px}
+.m-main{flex:1;padding:14px;overflow:hidden}
+.m-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.m-metric{background:rgba(255,255,255,.04);border:0.5px solid var(--border);border-radius:6px;padding:8px}
+.m-metric-label{font-size:8px;color:var(--muted);margin-bottom:3px}
+.m-metric-val{font-size:14px;font-weight:700}
+.m-metric-delta{font-size:8px;margin-top:2px}
+.m-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.m-card{background:rgba(255,255,255,.04);border:0.5px solid var(--border);border-radius:6px;padding:8px}
+.m-card-title{font-size:8px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.m-row{display:flex;align-items:center;gap:6px;padding:3px 0;border-bottom:0.5px solid rgba(255,255,255,.04)}
+.m-row:last-child{border:none}
+.m-thumb{width:22px;height:28px;background:rgba(255,255,255,.07);border-radius:3px}
+.m-info{flex:1}
+.m-title{font-size:8px;color:var(--text)}
+.m-meta{font-size:7px;color:var(--muted)}
+.m-views{font-size:9px;font-weight:600;color:var(--pink)}
+.m-trend{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:0.5px solid rgba(255,255,255,.04)}
+.m-trend:last-child{border:none}
+.m-rank{font-size:9px;font-weight:700;color:var(--pink);width:14px}
+.m-tag{flex:1;font-size:9px}
+.m-bar-w{width:50px;height:3px;background:rgba(255,255,255,.06);border-radius:2px}
+.m-bar{height:3px;border-radius:2px;background:var(--pink)}
+
+/* FEATURES */
+.features{padding:80px 40px;max-width:1100px;margin:0 auto}
+.section-label{font-size:12px;font-weight:600;color:var(--pink);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;text-align:center}
+.section-title{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-1px;text-align:center;margin-bottom:14px;line-height:1.15}
+.section-sub{font-size:15px;color:var(--muted);text-align:center;max-width:520px;margin:0 auto 56px;line-height:1.7}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.feature-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:24px;transition:border-color .2s}
+.feature-card:hover{border-color:rgba(254,44,85,.3)}
+.feature-icon{width:40px;height:40px;border-radius:10px;background:rgba(254,44,85,.1);display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-size:20px;color:var(--pink)}
+.feature-title{font-size:15px;font-weight:600;margin-bottom:8px}
+.feature-desc{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* COMPARE */
+.compare{padding:80px 40px;max-width:900px;margin:0 auto}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:48px}
+.compare-card{border-radius:14px;padding:24px;border:0.5px solid var(--border)}
+.compare-card.them{background:rgba(255,255,255,.02)}
+.compare-card.us{background:rgba(254,44,85,.05);border-color:rgba(254,44,85,.25)}
+.compare-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.compare-logo{font-size:14px;font-weight:700}
+.compare-badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600}
+.badge-gray{background:rgba(255,255,255,.08);color:var(--muted)}
+.badge-pink{background:rgba(254,44,85,.15);color:var(--pink)}
+.compare-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px;color:rgba(255,255,255,.7)}
+.compare-item:last-child{border:none}
+.compare-item i{font-size:15px;margin-top:1px;flex-shrink:0}
+.icon-yes{color:#00c896}
+.icon-no{color:rgba(255,255,255,.2)}
+
+/* PRICING */
+.pricing{padding:80px 40px;max-width:900px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.pricing-card{background:var(--card);border:0.5px solid var(--border);border-radius:14px;padding:24px}
+.pricing-card.featured{border-color:var(--pink);position:relative}
+.popular-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--pink);color:#fff;font-size:11px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap}
+.plan-name{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px}
+.plan-price{font-size:32px;font-weight:800;margin-bottom:4px}
+.plan-period{font-size:12px;color:var(--muted)}
+.plan-divider{height:0.5px;background:var(--border);margin:18px 0}
+.plan-feature{display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.7);margin-bottom:10px}
+.plan-feature i{font-size:15px;color:#00c896}
+.plan-btn{width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;margin-top:18px;transition:all .2s}
+.plan-btn-ghost{background:transparent;border:0.5px solid var(--border);color:var(--text)}
+.plan-btn-ghost:hover{background:rgba(255,255,255,.06)}
+.plan-btn-fill{background:var(--pink);border:none;color:#fff}
+.plan-btn-fill:hover{opacity:.9}
+
+/* CTA BOTTOM */
+.cta-bottom{padding:80px 40px;text-align:center;position:relative;overflow:hidden}
+.cta-bottom::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(254,44,85,.08),transparent);pointer-events:none}
+.cta-bottom h2{font-size:clamp(28px,4vw,48px);font-weight:900;letter-spacing:-1.5px;margin-bottom:16px}
+.cta-bottom p{font-size:16px;color:var(--muted);margin-bottom:36px}
+
+/* FOOTER */
+footer{border-top:0.5px solid var(--border);padding:32px 40px;display:flex;align-items:center;justify-content:space-between}
+.footer-logo{font-size:16px;font-weight:800}
+.footer-logo span{color:var(--pink)}
+.footer-text{font-size:12px;color:var(--muted)}
+
+/* LINK ICONS */
+@import url('https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css');
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Flow<span>Tok</span></div>
+  <div class="nav-links">
+    <a class="nav-link" href="#features" id="nl-features">Fonctionnalités</a>
+    <a class="nav-link" href="#pricing" id="nl-pricing">Tarifs</a>
+    <a class="nav-link" href="#compare" id="nl-compare">Comparaison</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="lang-sel">
+      <button class="lang-btn" onclick="setLang('vi',this)">VI</button>
+      <button class="lang-btn active" onclick="setLang('fr',this)">FR</button>
+      <button class="lang-btn" onclick="setLang('en',this)">EN</button>
+    </div>
+    <button class="btn-ghost" id="btn-login" onclick="window.location.href='auth.html'">Connexion</button>
+    <button class="btn-primary" id="btn-signup" onclick="window.location.href='auth.html'">Essai gratuit</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    <span id="badge-text">Données TikTok en temps réel</span>
+  </div>
+  <h1 id="hero-title">L'intelligence TikTok Shop<br>au service des <span class="accent">créatrices</span></h1>
+  <p id="hero-sub">Analyse ton compte, détecte les produits gagnants avant tout le monde, et reçois des scripts prêts à filmer — adaptés à ton style.</p>
+  <div class="hero-cta">
+    <button class="cta-creator" onclick="window.location.href='auth.html'">
+      <span class="cta-icon">🎬</span>
+      <span>
+        <span id="cta-creator-main">Je suis créatrice</span>
+        <span class="cta-sub" id="cta-creator-sub">Analyse mon compte TikTok</span>
+      </span>
+    </button>
+    <button class="cta-seller" onclick="window.location.href='auth.html'">
+      <span class="cta-icon">🛍️</span>
+      <span>
+        <span id="cta-seller-main">Je suis vendeur</span>
+        <span class="cta-sub" id="cta-seller-sub">Trouve mes créatrices idéales</span>
+      </span>
+    </button>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-item"><div class="stat-num">10K+</div><div class="stat-label" id="stat1">Créatrices actives</div></div>
+    <div class="stat-item"><div class="stat-num">98%</div><div class="stat-label" id="stat2">Données en temps réel</div></div>
+    <div class="stat-item"><div class="stat-num">5h</div><div class="stat-label" id="stat3">Économisées par jour</div></div>
+    <div class="stat-item"><div class="stat-num">Vietnam</div><div class="stat-label" id="stat4">Marché ciblé</div></div>
+  </div>
+</section>
+
+<!-- MOCKUP -->
+<section class="mockup-section">
+  <div class="mockup-wrap">
+    <div class="mockup-glow"></div>
+    <div class="mockup-screen">
+      <div class="mockup-bar">
+        <div class="mockup-dots">
+          <div class="mockup-dot" style="background:#ff5f57"></div>
+          <div class="mockup-dot" style="background:#febc2e"></div>
+          <div class="mockup-dot" style="background:#28c840"></div>
+        </div>
+        <div class="mockup-url">flowtok.app/dashboard</div>
+      </div>
+      <div class="mockup-body">
+        <div class="m-sidebar">
+          <div class="m-logo">Flow<span>Tok</span></div>
+          <div class="m-nav active"><i class="ti ti-layout-dashboard"></i> Dashboard</div>
+          <div class="m-nav"><i class="ti ti-chart-bar"></i> Analyse</div>
+          <div class="m-nav"><i class="ti ti-trending-up"></i> Tendances</div>
+          <div class="m-nav"><i class="ti ti-package"></i> Produits</div>
+          <div class="m-nav"><i class="ti ti-script"></i> Scripts</div>
+        </div>
+        <div class="m-main">
+          <div class="m-metrics">
+            <div class="m-metric"><div class="m-metric-label">Vues</div><div class="m-metric-val">284K</div><div class="m-metric-delta" style="color:#fe2c55">-12%</div></div>
+            <div class="m-metric"><div class="m-metric-label">Followers</div><div class="m-metric-val">13.8K</div><div class="m-metric-delta" style="color:#00c896">+124</div></div>
+            <div class="m-metric"><div class="m-metric-label">Engagement</div><div class="m-metric-val">4.2%</div><div class="m-metric-delta" style="color:#fe2c55">-0.8%</div></div>
+            <div class="m-metric"><div class="m-metric-label">Commissions</div><div class="m-metric-val">2.4M đ</div><div class="m-metric-delta" style="color:#00c896">+18%</div></div>
+          </div>
+          <div class="m-grid">
+            <div class="m-card">
+              <div class="m-card-title">Vidéos récentes</div>
+              <div class="m-row"><div class="m-thumb"></div><div class="m-info"><div class="m-title">Set phụ kiện bạc</div><div class="m-meta">Il y a 2j</div></div><div class="m-views">29K</div></div>
+              <div class="m-row"><div class="m-thumb"></div><div class="m-info"><div class="m-title">Váy lụa đi làm</div><div class="m-meta">Il y a 4j</div></div><div class="m-views">5.7K</div></div>
+              <div class="m-row"><div class="m-thumb"></div><div class="m-info"><div class="m-title">Outfit cuối tuần</div><div class="m-meta">Il y a 6j</div></div><div class="m-views">1.2K</div></div>
+            </div>
+            <div class="m-card">
+              <div class="m-card-title">Trends Vietnam</div>
+              <div class="m-trend"><div class="m-rank">#1</div><div class="m-tag">#thoitrangnu</div><div class="m-bar-w"><div class="m-bar" style="width:100%"></div></div></div>
+              <div class="m-trend"><div class="m-rank">#2</div><div class="m-tag">#outfitoftheday</div><div class="m-bar-w"><div class="m-bar" style="width:78%"></div></div></div>
+              <div class="m-trend"><div class="m-rank">#3</div><div class="m-tag">#vaydep</div><div class="m-bar-w"><div class="m-bar" style="width:65%"></div></div></div>
+              <div class="m-trend"><div class="m-rank">#4</div><div class="m-tag">#streetstylehcm</div><div class="m-bar-w"><div class="m-bar" style="width:52%"></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-label" id="feat-label">Fonctionnalités</div>
+  <h2 class="section-title" id="feat-title">Tout ce dont tu as besoin<br>pour dominer TikTok Shop</h2>
+  <p class="section-sub" id="feat-sub">FlowTok combine données réelles, intelligence artificielle et personnalisation pour te donner un avantage compétitif réel.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-chart-bar"></i></div>
+      <div class="feature-title" id="f1-title">Audit de compte IA</div>
+      <div class="feature-desc" id="f1-desc">Entre ton @ TikTok et découvre exactement pourquoi tes vidéos ne performent pas — avec un plan d'action concret.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-trending-up"></i></div>
+      <div class="feature-title" id="f2-title">Tendances en temps réel</div>
+      <div class="feature-desc" id="f2-desc">Hashtags, sons et formats viraux au Vietnam — mis à jour toutes les heures directement depuis TikTok.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-package"></i></div>
+      <div class="feature-title" id="f3-title">Produits gagnants</div>
+      <div class="feature-desc" id="f3-desc">Détecte les produits qui vont exploser avant tout le monde — basé sur les signaux de ventes réels TikTok Shop.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-script"></i></div>
+      <div class="feature-title" id="f4-title">Générateur de scripts</div>
+      <div class="feature-desc" id="f4-desc">Upload une photo du produit. L'IA génère un script adapté à TON style — hooks prêts à filmer en vietnamien.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-users"></i></div>
+      <div class="feature-title" id="f5-title">Analyse concurrentes</div>
+      <div class="feature-desc" id="f5-desc">Compare tes performances aux top créatrices de ta niche. Comprends ce qui les fait performer.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><i class="ti ti-bell"></i></div>
+      <div class="feature-title" id="f6-title">Alertes personnalisées</div>
+      <div class="feature-desc" id="f6-desc">Reçois des notifications quand un produit dans ta niche commence à exploser — avant la concurrence.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="compare" id="compare">
+  <div style="text-align:center">
+    <div class="section-label" id="comp-label">Comparaison</div>
+    <h2 class="section-title" id="comp-title">FlowTok vs les autres</h2>
+    <p class="section-sub" id="comp-sub">Les outils existants te donnent des chiffres. FlowTok te dit quoi faire avec.</p>
+  </div>
+  <div class="compare-grid">
+    <div class="compare-card them">
+      <div class="compare-header">
+        <div class="compare-logo">Kalodata / Fastmoss</div>
+        <span class="compare-badge badge-gray">Autres outils</span>
+      </div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Données brutes TikTok Shop</div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Tendances générales</div>
+      <div class="compare-item"><i class="ti ti-x icon-no"></i>Recommandations personnalisées</div>
+      <div class="compare-item"><i class="ti ti-x icon-no"></i>Scripts adaptés à ton style</div>
+      <div class="compare-item"><i class="ti ti-x icon-no"></i>Audit de ton propre compte</div>
+      <div class="compare-item"><i class="ti ti-x icon-no"></i>Focalisé Vietnam</div>
+      <div class="compare-item"><i class="ti ti-x icon-no"></i>Brief quotidien actionnable</div>
+    </div>
+    <div class="compare-card us">
+      <div class="compare-header">
+        <div class="compare-logo">Flow<span style="color:var(--pink)">Tok</span></div>
+        <span class="compare-badge badge-pink">Notre approche</span>
+      </div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Données réelles TikTok Vietnam</div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Tendances en temps réel</div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Recommandations IA personnalisées</div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Scripts adaptés à TON style</div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Audit complet de ton compte</div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>100% optimisé Vietnam</div>
+      <div class="compare-item"><i class="ti ti-check icon-yes"></i>Brief quotidien prêt à l'emploi</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div style="text-align:center">
+    <div class="section-label" id="price-label">Tarifs</div>
+    <h2 class="section-title" id="price-title">Simple et transparent</h2>
+    <p class="section-sub" id="price-sub">Commence gratuitement. Évolue quand tu en as besoin.</p>
+  </div>
+  <div class="pricing-grid">
+    <div class="pricing-card">
+      <div class="plan-name" id="plan1-name">Gratuit</div>
+      <div class="plan-price">0 đ</div>
+      <div class="plan-period" id="plan1-period">Pour toujours</div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf1-1">5 analyses par mois</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf1-2">Tendances basiques</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf1-3">3 scripts générés</span></div>
+      <button class="plan-btn plan-btn-ghost" id="plan1-btn">Commencer</button>
+    </div>
+    <div class="pricing-card featured">
+      <div class="popular-badge" id="popular-badge">Le plus populaire</div>
+      <div class="plan-name" id="plan2-name">Pro</div>
+      <div class="plan-price">99k đ</div>
+      <div class="plan-period" id="plan2-period">par mois · ~4€</div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf2-1">Analyses illimitées</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf2-2">Tendances temps réel</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf2-3">Scripts illimités</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf2-4">Audit de compte complet</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf2-5">Alertes produits</span></div>
+      <button class="plan-btn plan-btn-fill" id="plan2-btn">Commencer</button>
+    </div>
+    <div class="pricing-card">
+      <div class="plan-name" id="plan3-name">Business</div>
+      <div class="plan-price" id="plan3-price">Sur mesure</div>
+      <div class="plan-period" id="plan3-period">Pour les agences</div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf3-1">Tout du plan Pro</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf3-2">Plusieurs comptes</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf3-3">API access</span></div>
+      <div class="plan-feature"><i class="ti ti-check"></i><span id="pf3-4">Support dédié</span></div>
+      <button class="plan-btn plan-btn-ghost" id="plan3-btn">Nous contacter</button>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BOTTOM -->
+<section class="cta-bottom" id="signup-section">
+  <h2 id="cta-title">Prêt à dominer<br>TikTok Shop ?</h2>
+  <p id="cta-sub-text">Rejoins les créatrices qui utilisent FlowTok pour prendre de meilleures décisions.</p>
+  <div class="hero-cta">
+    <button class="cta-creator">
+      <span class="cta-icon">🎬</span>
+      <span>
+        <span id="cta2-creator">Je suis créatrice</span>
+        <span class="cta-sub" id="cta2-creator-sub">Essai gratuit — sans CB</span>
+      </span>
+    </button>
+    <button class="cta-seller">
+      <span class="cta-icon">🛍️</span>
+      <span>
+        <span id="cta2-seller">Je suis vendeur</span>
+        <span class="cta-sub" id="cta2-seller-sub">Trouver des créatrices</span>
+      </span>
+    </button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Flow<span>Tok</span></div>
+  <div class="footer-text" id="footer-text">© 2026 FlowTok — Propulsé par Nelson Flow</div>
+  <div style="display:flex;gap:16px">
+    <a class="nav-link" href="#" id="footer-privacy">Confidentialité</a>
+    <a class="nav-link" href="#" id="footer-terms">CGU</a>
+    <a class="nav-link" href="#" id="footer-contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+const T = {
+  fr:{
+    badge:'Données TikTok en temps réel',
+    heroTitle:'L\'intelligence TikTok Shop<br>au service des <span class="accent">créatrices</span>',
+    heroSub:'Analyse ton compte, détecte les produits gagnants avant tout le monde, et reçois des scripts prêts à filmer — adaptés à ton style.',
+    ctaCreator:'Je suis créatrice', ctaCreatorSub:'Analyse mon compte TikTok',
+    ctaSeller:'Je suis vendeur', ctaSellerSub:'Trouve mes créatrices idéales',
+    stat1:'Créatrices actives', stat2:'Données en temps réel', stat3:'Économisées par jour', stat4:'Marché ciblé',
+    featLabel:'Fonctionnalités', featTitle:'Tout ce dont tu as besoin<br>pour dominer TikTok Shop',
+    featSub:'FlowTok combine données réelles, intelligence artificielle et personnalisation.',
+    f1:'Audit de compte IA', f1d:'Entre ton @ TikTok et découvre exactement pourquoi tes vidéos ne performent pas.',
+    f2:'Tendances en temps réel', f2d:'Hashtags, sons et formats viraux au Vietnam — mis à jour toutes les heures.',
+    f3:'Produits gagnants', f3d:'Détecte les produits qui vont exploser avant tout le monde.',
+    f4:'Générateur de scripts', f4d:'Upload une photo. L\'IA génère un script adapté à TON style.',
+    f5:'Analyse concurrentes', f5d:'Compare tes performances aux top créatrices de ta niche.',
+    f6:'Alertes personnalisées', f6d:'Reçois des notifications quand un produit dans ta niche commence à exploser.',
+    compLabel:'Comparaison', compTitle:'FlowTok vs les autres',
+    compSub:'Les outils existants te donnent des chiffres. FlowTok te dit quoi faire avec.',
+    priceLabel:'Tarifs', priceTitle:'Simple et transparent', priceSub:'Commence gratuitement. Évolue quand tu en as besoin.',
+    p1:'Gratuit', p1p:'Pour toujours', p2:'Pro', p2p:'par mois · ~4€', p3:'Business', p3p:'Pour les agences',
+    popular:'Le plus populaire',
+    ctaTitle:'Prêt à dominer<br>TikTok Shop ?', ctaSub:'Rejoins les créatrices qui utilisent FlowTok.',
+    login:'Connexion', signup:'Essai gratuit', footer:'© 2026 FlowTok — Propulsé par Nelson Flow',
+    nlFeatures:'Fonctionnalités', nlPricing:'Tarifs', nlCompare:'Comparaison'
+  },
+  vi:{
+    badge:'Dữ liệu TikTok theo thời gian thực',
+    heroTitle:'Nền tảng thông minh TikTok Shop<br>dành cho <span class="accent">nhà sáng tạo</span>',
+    heroSub:'Phân tích tài khoản, phát hiện sản phẩm thắng cuộc trước mọi người, nhận script sẵn sàng quay — phù hợp với phong cách của bạn.',
+    ctaCreator:'Tôi là nhà sáng tạo', ctaCreatorSub:'Phân tích tài khoản TikTok của tôi',
+    ctaSeller:'Tôi là người bán', ctaSellerSub:'Tìm nhà sáng tạo phù hợp',
+    stat1:'Nhà sáng tạo hoạt động', stat2:'Dữ liệu thời gian thực', stat3:'Tiết kiệm mỗi ngày', stat4:'Thị trường mục tiêu',
+    featLabel:'Tính năng', featTitle:'Tất cả những gì bạn cần<br>để thống trị TikTok Shop',
+    featSub:'FlowTok kết hợp dữ liệu thực, trí tuệ nhân tạo và cá nhân hóa.',
+    f1:'Kiểm toán tài khoản AI', f1d:'Nhập @ TikTok và khám phá chính xác lý do video của bạn không hiệu quả.',
+    f2:'Xu hướng theo thời gian thực', f2d:'Hashtag, âm nhạc và định dạng viral tại Việt Nam — cập nhật mỗi giờ.',
+    f3:'Sản phẩm thắng cuộc', f3d:'Phát hiện sản phẩm sắp bùng nổ trước tất cả mọi người.',
+    f4:'Tạo script', f4d:'Tải ảnh sản phẩm lên. AI tạo script phù hợp với PHONG CÁCH của bạn.',
+    f5:'Phân tích đối thủ', f5d:'So sánh hiệu suất của bạn với các nhà sáng tạo hàng đầu trong niche.',
+    f6:'Cảnh báo cá nhân hóa', f6d:'Nhận thông báo khi sản phẩm trong niche của bạn bắt đầu bùng nổ.',
+    compLabel:'So sánh', compTitle:'FlowTok vs các công cụ khác',
+    compSub:'Các công cụ hiện có cho bạn số liệu. FlowTok nói cho bạn biết phải làm gì.',
+    priceLabel:'Bảng giá', priceTitle:'Đơn giản và minh bạch', priceSub:'Bắt đầu miễn phí. Nâng cấp khi cần.',
+    p1:'Miễn phí', p1p:'Mãi mãi', p2:'Pro', p2p:'mỗi tháng', p3:'Doanh nghiệp', p3p:'Cho các agency',
+    popular:'Phổ biến nhất',
+    ctaTitle:'Sẵn sàng thống trị<br>TikTok Shop?', ctaSub:'Tham gia cùng các nhà sáng tạo đang dùng FlowTok.',
+    login:'Đăng nhập', signup:'Dùng thử miễn phí', footer:'© 2026 FlowTok — Được tạo bởi Nelson Flow',
+    nlFeatures:'Tính năng', nlPricing:'Bảng giá', nlCompare:'So sánh'
+  },
+  en:{
+    badge:'Real-time TikTok data',
+    heroTitle:'The TikTok Shop intelligence<br>platform for <span class="accent">creators</span>',
+    heroSub:'Analyze your account, spot winning products before everyone else, and get ready-to-film scripts — tailored to your style.',
+    ctaCreator:'I\'m a creator', ctaCreatorSub:'Analyze my TikTok account',
+    ctaSeller:'I\'m a seller', ctaSellerSub:'Find my ideal creators',
+    stat1:'Active creators', stat2:'Real-time data', stat3:'Saved per day', stat4:'Target market',
+    featLabel:'Features', featTitle:'Everything you need<br>to dominate TikTok Shop',
+    featSub:'FlowTok combines real data, artificial intelligence and personalization.',
+    f1:'AI Account Audit', f1d:'Enter your TikTok @ and discover exactly why your videos aren\'t performing.',
+    f2:'Real-time Trends', f2d:'Hashtags, sounds and viral formats in Vietnam — updated every hour.',
+    f3:'Winning Products', f3d:'Detect products about to explode before anyone else.',
+    f4:'Script Generator', f4d:'Upload a photo. AI generates a script tailored to YOUR style.',
+    f5:'Competitor Analysis', f5d:'Compare your performance to top creators in your niche.',
+    f6:'Personalized Alerts', f6d:'Get notified when a product in your niche starts to explode.',
+    compLabel:'Comparison', compTitle:'FlowTok vs the rest',
+    compSub:'Other tools give you numbers. FlowTok tells you what to do with them.',
+    priceLabel:'Pricing', priceTitle:'Simple and transparent', priceSub:'Start free. Scale when you need it.',
+    p1:'Free', p1p:'Forever', p2:'Pro', p2p:'per month · ~$4', p3:'Business', p3p:'For agencies',
+    popular:'Most popular',
+    ctaTitle:'Ready to dominate<br>TikTok Shop?', ctaSub:'Join creators who use FlowTok to make better decisions.',
+    login:'Sign in', signup:'Free trial', footer:'© 2026 FlowTok — Powered by Nelson Flow',
+    nlFeatures:'Features', nlPricing:'Pricing', nlCompare:'Comparison'
+  }
+};
+
+function detectLang(){
+  const l=navigator.language||'fr';
+  if(l.startsWith('vi'))return'vi';
+  if(l.startsWith('en'))return'en';
+  return'fr';
+}
+
+function setLang(l,el){
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  applyLang(l);
+}
+
+function applyLang(l){
+  const t=T[l];
+  document.getElementById('badge-text').textContent=t.badge;
+  document.getElementById('hero-title').innerHTML=t.heroTitle;
+  document.getElementById('hero-sub').textContent=t.heroSub;
+  document.getElementById('cta-creator-main').textContent=t.ctaCreator;
+  document.getElementById('cta-creator-sub').textContent=t.ctaCreatorSub;
+  document.getElementById('cta-seller-main').textContent=t.ctaSeller;
+  document.getElementById('cta-seller-sub').textContent=t.ctaSellerSub;
+  document.getElementById('stat1').textContent=t.stat1;
+  document.getElementById('stat2').textContent=t.stat2;
+  document.getElementById('stat3').textContent=t.stat3;
+  document.getElementById('stat4').textContent=t.stat4;
+  document.getElementById('feat-label').textContent=t.featLabel;
+  document.getElementById('feat-title').innerHTML=t.featTitle;
+  document.getElementById('feat-sub').textContent=t.featSub;
+  document.getElementById('f1-title').textContent=t.f1;
+  document.getElementById('f1-desc').textContent=t.f1d;
+  document.getElementById('f2-title').textContent=t.f2;
+  document.getElementById('f2-desc').textContent=t.f2d;
+  document.getElementById('f3-title').textContent=t.f3;
+  document.getElementById('f3-desc').textContent=t.f3d;
+  document.getElementById('f4-title').textContent=t.f4;
+  document.getElementById('f4-desc').textContent=t.f4d;
+  document.getElementById('f5-title').textContent=t.f5;
+  document.getElementById('f5-desc').textContent=t.f5d;
+  document.getElementById('f6-title').textContent=t.f6;
+  document.getElementById('f6-desc').textContent=t.f6d;
+  document.getElementById('comp-label').textContent=t.compLabel;
+  document.getElementById('comp-title').textContent=t.compTitle;
+  document.getElementById('comp-sub').textContent=t.compSub;
+  document.getElementById('price-label').textContent=t.priceLabel;
+  document.getElementById('price-title').textContent=t.priceTitle;
+  document.getElementById('price-sub').textContent=t.priceSub;
+  document.getElementById('plan1-name').textContent=t.p1;
+  document.getElementById('plan1-period').textContent=t.p1p;
+  document.getElementById('plan2-name').textContent=t.p2;
+  document.getElementById('plan2-period').textContent=t.p2p;
+  document.getElementById('plan3-name').textContent=t.p3;
+  document.getElementById('plan3-price').textContent=t.p3;
+  document.getElementById('plan3-period').textContent=t.p3p;
+  document.getElementById('popular-badge').textContent=t.popular;
+  document.getElementById('cta-title').innerHTML=t.ctaTitle;
+  document.getElementById('cta-sub-text').textContent=t.ctaSub;
+  document.getElementById('cta2-creator').textContent=t.ctaCreator;
+  document.getElementById('cta2-creator-sub').textContent=t.ctaCreatorSub;
+  document.getElementById('cta2-seller').textContent=t.ctaSeller;
+  document.getElementById('cta2-seller-sub').textContent=t.ctaSellerSub;
+  document.getElementById('btn-login').textContent=t.login;
+  document.getElementById('btn-signup').textContent=t.signup;
+  document.getElementById('footer-text').textContent=t.footer;
+  document.getElementById('nl-features').textContent=t.nlFeatures;
+  document.getElementById('nl-pricing').textContent=t.nlPricing;
+  document.getElementById('nl-compare').textContent=t.nlCompare;
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    if((l==='vi'&&b.textContent==='VI')||(l==='fr'&&b.textContent==='FR')||(l==='en'&&b.textContent==='EN'))
+      b.classList.add('active');
+    else b.classList.remove('active');
+  });
+}
+
+applyLang(detectLang());
+</script>
+</body>
+</html>
